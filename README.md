@@ -30,6 +30,18 @@ bun run build
 
 The output is written to `dist/`. The build packages popup and options HTML and independently bundles the background, isolated content script and MAIN-world script as **classic IIFEs**. This avoids ES module imports in manifest-declared content scripts.
 
+## Download a remotely built extension
+
+You do not need Bun, Node.js or a local build environment to install a CI build.
+
+1. Open the [NativeScroll GitHub Actions runs](https://github.com/harysuryanto/chrome-native-scroll/actions/workflows/verify.yml).
+2. Open a successful run for your desired commit or pull request.
+3. Under **Artifacts**, download `nativescroll-chrome-extension` (GitHub sign-in may be required).
+4. Extract the downloaded ZIP to a new folder. The extracted folder should contain `manifest.json` at its root.
+5. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select that extracted folder.
+
+Artifacts are retained for **14 days**. GitHub Actions uses a hosted Ubuntu runner; no build command runs on your Mac.
+
 ## Load in Chrome
 
 1. Run `bun run build`.
