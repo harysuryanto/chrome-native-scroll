@@ -51,15 +51,17 @@ async function modify(mutator: (current: NativeScrollSettings) => NativeScrollSe
 }
 
 enabled?.addEventListener('change', () => {
-  void modify((current) => ({ ...current, enabled: enabled.checked }));
+  const checked = enabled.checked;
+  void modify((current) => ({ ...current, enabled: checked }));
 });
 
 siteEnabled?.addEventListener('change', () => {
   if (!hostname) return;
   const selected = hostname;
+  const checked = siteEnabled.checked;
   void modify((current) => ({
     ...current,
-    excludedHosts: siteEnabled.checked
+    excludedHosts: checked
       ? current.excludedHosts.filter((host) => host !== selected)
       : [...current.excludedHosts.filter((host) => host !== selected), selected],
   }));
