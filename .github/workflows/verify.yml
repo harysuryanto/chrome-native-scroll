@@ -1,0 +1,27 @@
+name: Verify extension scaffold
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  verify:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: oven-sh/setup-bun@v2
+      - run: bun install
+      - run: bun run typecheck
+      - run: bun run lint
+      - run: bun run build
+      - name: Verify built manifest and scripts
+        run: |
+          bun -e 'const m=await Bun.file("dist/manifest.json").json(); for (const f of [m.action.default_popup,m.options_page,m.background.service_worker,...m.content_scripts.flatMap(s=>s.js)]) {if (!(await Bun.file("dist/"+f).exists())) throw new Error("Missing built file: "+f)}'
+      - name: Upload installable Chrome extension build
+        uses: actions/upload-artifact@v4
+        with:
+          name: nativescroll-chrome-extension
+          path: dist/
+          if-no-files-found: error
+          retention-days: 14
