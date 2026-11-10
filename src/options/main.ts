@@ -39,12 +39,13 @@ window.addEventListener('pagehide', unsubscribe, { once: true });
 control(selectors.enabled)?.addEventListener('change', () => {
   const element = control(selectors.enabled);
   if (!element || saving) return;
+  const checked = element.checked;
   saving = true;
   render();
   void (async () => {
     try {
       const current = await loadSettings();
-      await saveSettings({ ...current, enabled: element.checked });
+      await saveSettings({ ...current, enabled: checked });
       settings = await loadSettings();
     } catch (error) {
       document.querySelector<HTMLElement>('#message')!.textContent = 'Unable to save settings.';
