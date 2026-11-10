@@ -1,0 +1,36 @@
+{
+  "manifest_version": 3,
+  "name": "NativeScroll",
+  "version": "0.1.0",
+  "description": "Back to native scrolling. Remove artificial website scrolling physics.",
+  "action": {
+    "default_title": "NativeScroll",
+    "default_popup": "popup/index.html"
+  },
+  "options_page": "options/index.html",
+  "background": {
+    "service_worker": "scripts/background.js"
+  },
+  "content_scripts": [
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "scripts/content.js"
+      ],
+      "run_at": "document_start",
+      "world": "ISOLATED"
+    },
+    {
+      "matches": [
+        "<all_urls>"
+      ],
+      "js": [
+        "scripts/main-world.js"
+      ],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}

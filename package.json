@@ -1,0 +1,26 @@
+{
+  "name": "native-scroll",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "description": "Back to native scrolling.",
+  "scripts": {
+    "dev": "vite --config vite.config.ts",
+    "build": "bun scripts/build.mjs",
+    "typecheck": "tsc --noEmit",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check ."
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "@types/chrome": "^0.0.320",
+    "@types/node": "^22.0.0",
+    "eslint": "^9.39.5",
+    "globals": "^16.0.0",
+    "prettier": "^3.6.2",
+    "typescript": "^5.9.3",
+    "typescript-eslint": "^8.72.2",
+    "vite": "^8.3.7"
+  }
+}
