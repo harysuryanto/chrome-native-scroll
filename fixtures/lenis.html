@@ -1,0 +1,35 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — Lenis Smooth Scroll</title>
+    <link rel="stylesheet" href="/vendor/lenis/dist/lenis.css" />
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      .tall { height: 4200px; padding: 24px; background: linear-gradient(#f0f9ff, #bae6fd); }
+      #nested { width: 320px; height: 160px; overflow-y: auto; border: 2px solid #0284c7; padding: 12px; margin-top: 16px; background: #fff; }
+      .nested-body { height: 900px; }
+    </style>
+  </head>
+  <body>
+    <main class="tall">
+      <h1>Lenis Real-Library Fixture</h1>
+      <button id="click-test" type="button">Click me</button>
+      <span id="click-count">0</span>
+      <div id="nested" data-lenis-prevent><div class="nested-body">Nested scrollable pane</div></div>
+    </main>
+    <script src="/vendor/lenis/dist/lenis.min.js"></script>
+    <script>
+      // Intentionally closure-scoped (not exposed on window) to test real-world bundled apps.
+      (() => {
+        let clicks = 0;
+        document.getElementById('click-test').addEventListener('click', () => {
+          clicks += 1;
+          document.getElementById('click-count').textContent = String(clicks);
+        });
+        const lenis = new window.Lenis({ autoRaf: true, duration: 1.5 });
+        void lenis;
+      })();
+    </script>
+  </body>
+</html>
