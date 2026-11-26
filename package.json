@@ -10,6 +10,7 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
     "test": "vitest run",
+    "fixtures": "bun scripts/serve-fixtures.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
   },
