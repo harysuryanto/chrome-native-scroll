@@ -26,6 +26,9 @@ export function isMainWorldConfig(value: unknown): value is MainWorldConfig {
     typeof record.smoothScrollApis === 'boolean' &&
     typeof record.wheelOptimization === 'boolean' &&
     typeof record.libraryAdapters === 'boolean' &&
-    (record.mode === 'native' || record.mode === 'compatibility' || record.mode === 'strict')
+    (record.mode === 'auto' ||
+      record.mode === 'native' ||
+      record.mode === 'compatibility' ||
+      record.mode === 'strict')
   );
 }

@@ -14,11 +14,14 @@ export interface SanitizedAdapterDiagnostic {
   readonly detail: string;
 }
 
+export type ResolvedAutoMode = 'native' | 'compatibility' | 'strict';
+
 export interface MainWorldDiagnostics {
   readonly apiPatchState: 'inactive' | 'active' | 'partial' | 'failed';
   readonly neutralizedApiCalls: number;
   readonly nonPassiveRootWheelListeners: number;
   readonly strictWheelActive: boolean;
+  readonly resolvedAutoMode: ResolvedAutoMode | null;
   readonly adapters: readonly SanitizedAdapterDiagnostic[];
 }
 
@@ -86,11 +89,16 @@ export function sanitizeMainWorldDiagnostics(input: unknown): MainWorldDiagnosti
     }
   }
 
+  const rawAuto = src.resolvedAutoMode;
+  const resolvedAutoMode: ResolvedAutoMode | null =
+    rawAuto === 'native' || rawAuto === 'compatibility' || rawAuto === 'strict' ? rawAuto : null;
+
   return {
     apiPatchState,
     neutralizedApiCalls: clampNonNegativeInt(src.neutralizedApiCalls),
     nonPassiveRootWheelListeners: clampNonNegativeInt(src.nonPassiveRootWheelListeners),
     strictWheelActive: src.strictWheelActive === true,
+    resolvedAutoMode,
     adapters,
   };
 }
