@@ -1,0 +1,42 @@
+{
+  "timestamp": "2026-11-26T16:32:59.526Z",
+  "environment": {
+    "os": "darwin 25.6.0",
+    "cpu": "Apple M4",
+    "cores": 10,
+    "ramGb": 16,
+    "chromeUserAgent": "Mozilla/5.0 (Macintosh; Intel Mac OS X 10_15_7) AppleWebKit/537.36 (KHTML, like Gecko) HeadlessChrome/159.0.0.0 Safari/537.36"
+  },
+  "baseline": {
+    "cssSmooth": {
+      "inputToFirstScrollMs": 17.9,
+      "animationCompletionMs": 699.6,
+      "finalScrollY": 1848
+    },
+    "jsSmoothApi": {
+      "inputToFirstScrollMs": 16.9,
+      "animationCompletionMs": 566.7,
+      "finalScrollY": 1200
+    },
+    "wheelOverhead": {
+      "p50Ms": 0,
+      "p95Ms": 0
+    }
+  },
+  "nativeScrollEnabled": {
+    "cssSmooth": {
+      "inputToFirstScrollMs": 16.9,
+      "animationCompletionMs": 16.9,
+      "finalScrollY": 1848
+    },
+    "jsSmoothApi": {
+      "inputToFirstScrollMs": 17.2,
+      "animationCompletionMs": 17.2,
+      "finalScrollY": 1200
+    },
+    "wheelOverhead": {
+      "p50Ms": 0,
+      "p95Ms": 0
+    }
+  }
+}

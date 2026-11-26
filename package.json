@@ -11,6 +11,7 @@
     "lint": "eslint .",
     "test": "vitest run",
     "test:e2e": "playwright test",
+    "benchmark": "bun scripts/benchmark.mjs",
     "fixtures": "bun scripts/serve-fixtures.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
