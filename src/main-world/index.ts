@@ -6,6 +6,7 @@ import {
   isMainWorldConfig,
   type MainWorldConfig,
 } from '../shared/bridge';
+import { createGsapScrollSmootherAdapter } from './adapters/gsap-scrollsmoother';
 import { createLenisAdapter } from './adapters/lenis';
 import { createAdapterManager } from './adapters/registry';
 import { createScrollApiPatchController } from './scroll-api-patch';
@@ -14,7 +15,10 @@ import { createWheelOptimizer } from './wheel-optimizer';
 // MAIN-world entry point. Runs in the page JS context with zero privileged extension APIs.
 const scrollApiPatch = createScrollApiPatchController();
 const wheelOptimizer = createWheelOptimizer();
-const adapterManager = createAdapterManager([createLenisAdapter()]);
+const adapterManager = createAdapterManager([
+  createLenisAdapter(),
+  createGsapScrollSmootherAdapter(),
+]);
 
 wheelOptimizer.installObserver();
 adapterManager.attachLifecycleListeners();
