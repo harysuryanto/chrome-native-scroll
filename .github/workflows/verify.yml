@@ -1,4 +1,4 @@
-name: Verify extension scaffold
+name: Verify NativeScroll
 
 on:
   push:
@@ -19,6 +19,20 @@ jobs:
       - name: Verify built manifest and scripts
         run: |
           bun -e 'const m=await Bun.file("dist/manifest.json").json(); for (const f of [m.action.default_popup,m.options_page,m.background.service_worker,...m.content_scripts.flatMap(s=>s.js)]) {if (!(await Bun.file("dist/"+f).exists())) throw new Error("Missing built file: "+f)}'
+      - name: Install Playwright Chromium
+        run: bunx playwright install chromium --with-deps
+      - name: Run Playwright extension E2E tests
+        run: bun run test:e2e
+      - name: Upload Playwright failure artifacts
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: playwright-failure-artifacts
+          path: |
+            playwright-report/
+            test-results/
+          if-no-files-found: ignore
+          retention-days: 7
       - name: Upload installable Chrome extension build
         uses: actions/upload-artifact@v4
         with:

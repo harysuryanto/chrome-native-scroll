@@ -6,7 +6,7 @@ const rootDir = fileURLToPath(new URL('../', import.meta.url));
 const fixturesDir = resolve(rootDir, 'fixtures');
 const nodeModulesDir = resolve(rootDir, 'node_modules');
 
-const MIME_TYPES: Record<string, string> = {
+const MIME_TYPES = {
   '.html': 'text/html; charset=utf-8',
   '.js': 'application/javascript; charset=utf-8',
   '.mjs': 'application/javascript; charset=utf-8',

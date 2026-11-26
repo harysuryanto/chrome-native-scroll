@@ -1,4 +1,8 @@
 node_modules/
 dist/
+*.tsbuildinfo
 .DS_Store
-*.log
+test-results/
+playwright-report/
+blob-report/
+release/
