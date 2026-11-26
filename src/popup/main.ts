@@ -20,6 +20,7 @@ const diagnosticsPanel = document.querySelector<HTMLDetailsElement>('#diagnostic
 const diagnosticsList = document.querySelector<HTMLUListElement>('#diagnostics-list');
 const site = document.querySelector<HTMLElement>('#current-site');
 const siteDetail = document.querySelector<HTMLElement>('#site-detail');
+const physicsIndicator = document.querySelector<HTMLElement>('#physics-indicator');
 const siteBadge = document.querySelector<HTMLElement>('#site-badge');
 const message = document.querySelector<HTMLElement>('#message');
 const versionEl = document.querySelector<HTMLElement>('#version');
@@ -56,11 +57,30 @@ function renderDiagnostics(): void {
   if (!tabSupport.supported || !tabResponded || !tabState) {
     diagnosticsPanel.hidden = true;
     diagnosticsList.textContent = '';
+    if (physicsIndicator) physicsIndicator.hidden = true;
     return;
   }
 
   diagnosticsPanel.hidden = false;
   diagnosticsList.textContent = '';
+
+  const diag = tabState.diagnostics;
+  if (physicsIndicator) {
+    const detectedParts: string[] = [];
+    if (diag) {
+      for (const adapter of diag.adapters) {
+        if (adapter.outcome !== 'not_detected') detectedParts.push(adapter.name);
+      }
+      if (diag.nonPassiveRootWheelListeners > 0) detectedParts.push('non-passive root wheel listener');
+      if (diag.neutralizedApiCalls > 0) detectedParts.push('smooth scroll API');
+    }
+    if (detectedParts.length > 0) {
+      physicsIndicator.textContent = `Custom scroll physics detected: ${detectedParts.join(', ')}`;
+      physicsIndicator.hidden = false;
+    } else {
+      physicsIndicator.hidden = true;
+    }
+  }
 
   const addItem = (label: string, value: string) => {
     const li = document.createElement('li');
@@ -69,7 +89,6 @@ function renderDiagnostics(): void {
   };
 
   addItem('CSS override', tabState.cssOverrideActive ? 'successfully_neutralized' : 'not_tested');
-  const diag = tabState.diagnostics;
   if (!diag) {
     addItem('MAIN-world diagnostics', 'not_tested');
     return;

@@ -1,3 +1,4 @@
+import { isDetectionBadgeMessage } from '../shared/messages';
 import { SETTINGS_KEY, normalizeSettings } from '../shared/settings';
 import { loadSettings, observeSettings } from '../shared/storage';
 
@@ -42,6 +43,24 @@ chrome.runtime.onStartup.addListener(() => {
 
 observeSettings((settings) => {
   void syncActionIcon(settings.enabled);
+});
+
+chrome.runtime.onMessage.addListener((message: unknown, sender) => {
+  if (sender.id !== chrome.runtime.id || !isDetectionBadgeMessage(message)) return;
+  const tabId = sender.tab?.id;
+  if (typeof tabId !== 'number') return;
+
+  if (message.detected) {
+    void chrome.action.setBadgeBackgroundColor({ tabId, color: '#0284c7' });
+    void chrome.action.setBadgeText({ tabId, text: '!' });
+    void chrome.action.setTitle({
+      tabId,
+      title: `NativeScroll — Custom scroll physics detected (${message.summary})`,
+    });
+  } else {
+    void chrome.action.setBadgeText({ tabId, text: '' });
+    void chrome.action.setTitle({ tabId, title: 'NativeScroll' });
+  }
 });
 
 void loadSettings()
