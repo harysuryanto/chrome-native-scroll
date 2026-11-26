@@ -1,9 +1,12 @@
 import { describe, expect, it } from 'vitest';
 import {
   DEFAULT_SETTINGS,
+  addExcludedHost,
+  clearExcludedHosts,
   isEnabledForHost,
   normalizeHostname,
   normalizeSettings,
+  removeExcludedHost,
 } from '../src/shared/settings';
 import { isExtensionRequest } from '../src/shared/messages';
 
@@ -54,5 +57,28 @@ describe('NativeScroll settings', () => {
     expect(isExtensionRequest({ type: 'native-scroll:get-state' })).toBe(true);
     expect(isExtensionRequest({ type: 'native-scroll:ping', settings: {} })).toBe(false);
     expect(isExtensionRequest({ type: 'native-scroll:write-settings' })).toBe(false);
+  });
+
+  it('adds, deduplicates, removes, and clears excluded hosts cleanly', () => {
+    const start = normalizeSettings({});
+    const bad = addExcludedHost(start, 'https://bad.example/path');
+    expect(bad.host).toBeNull();
+    expect(bad.settings.excludedHosts).toEqual([]);
+
+    const added1 = addExcludedHost(start, ' Example.COM. ');
+    expect(added1.host).toBe('example.com');
+    expect(added1.settings.excludedHosts).toEqual(['example.com']);
+
+    const dup = addExcludedHost(added1.settings, 'example.com');
+    expect(dup.settings.excludedHosts).toEqual(['example.com']);
+
+    const added2 = addExcludedHost(dup.settings, 'sub.example.com');
+    expect(added2.settings.excludedHosts).toEqual(['example.com', 'sub.example.com']);
+
+    const removed = removeExcludedHost(added2.settings, 'example.com');
+    expect(removed.excludedHosts).toEqual(['sub.example.com']);
+
+    const cleared = clearExcludedHosts(removed);
+    expect(cleared.excludedHosts).toEqual([]);
   });
 });
