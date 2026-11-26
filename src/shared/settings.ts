@@ -92,3 +92,36 @@ export function isEnabledForHost(settings: NativeScrollSettings, hostname: strin
   const host = normalizeHostname(hostname);
   return settings.enabled && host !== null && !settings.excludedHosts.includes(host);
 }
+
+export function addExcludedHost(
+  settings: NativeScrollSettings,
+  rawHost: string,
+): { settings: NativeScrollSettings; host: string | null } {
+  const host = normalizeHostname(rawHost);
+  if (!host) return { settings, host: null };
+  if (settings.excludedHosts.includes(host)) return { settings, host };
+  return {
+    settings: normalizeSettings({
+      ...settings,
+      excludedHosts: [...settings.excludedHosts, host],
+    }),
+    host,
+  };
+}
+
+export function removeExcludedHost(
+  settings: NativeScrollSettings,
+  rawHost: string,
+): NativeScrollSettings {
+  const host = normalizeHostname(rawHost);
+  if (!host) return settings;
+  return normalizeSettings({
+    ...settings,
+    excludedHosts: settings.excludedHosts.filter((entry) => entry !== host),
+  });
+}
+
+export function clearExcludedHosts(settings: NativeScrollSettings): NativeScrollSettings {
+  if (settings.excludedHosts.length === 0) return settings;
+  return normalizeSettings({ ...settings, excludedHosts: [] });
+}

@@ -8,19 +8,57 @@
   </head>
   <body>
     <main class="panel options" aria-labelledby="title">
-      <div class="brand-mark" aria-hidden="true">↕</div>
-      <h1 id="title">NativeScroll settings</h1>
-      <p class="tagline">Back to native scrolling.</p>
-      <p class="notice">These preferences are persisted. Scrolling changes will be added in later issues.</p>
-      <label class="setting"><span>Enable NativeScroll</span><input id="enabled" type="checkbox" disabled /></label>
+      <header class="header">
+        <div class="brand-mark" aria-hidden="true">↕</div>
+        <div class="brand-copy">
+          <h1 id="title">NativeScroll settings</h1>
+          <p class="tagline">Back to native scrolling.</p>
+        </div>
+      </header>
+
+      <section class="card" aria-label="General">
+        <label class="setting">
+          <span>Enable NativeScroll globally</span>
+          <input id="enabled" type="checkbox" role="switch" disabled />
+        </label>
+      </section>
+
       <fieldset>
-        <legend>Feature preferences (not active yet)</legend>
-        <label class="setting"><span>CSS smooth-scroll override</span><input id="css" type="checkbox" disabled /></label>
-        <label class="setting"><span>Smooth-scroll API override</span><input id="apis" type="checkbox" disabled /></label>
-        <label class="setting"><span>Wheel optimization (experimental)</span><input id="wheel" type="checkbox" disabled /></label>
-        <label class="setting"><span>Library adapters</span><input id="libraries" type="checkbox" disabled /></label>
+        <legend>Active scrolling overrides</legend>
+        <label class="setting">
+          <span>CSS smooth-scroll override (<code>scroll-behavior: auto</code>)</span>
+          <input id="css" type="checkbox" role="switch" disabled />
+        </label>
+        <label class="setting">
+          <span>Explicit smooth-scroll APIs (<code>scrollTo</code>, <code>scrollBy</code>, <code>scrollIntoView</code>)</span>
+          <input id="apis" type="checkbox" role="switch" disabled />
+        </label>
       </fieldset>
-      <p id="message" class="status" role="status"></p>
+
+      <fieldset>
+        <legend>Excluded websites</legend>
+        <p class="hint">
+          Uses <strong>exact-host matching</strong>: excluding <code>example.com</code> preserves
+          original scrolling on <code>example.com</code> only (not <code>app.example.com</code>).
+          Changes apply immediately to open tabs; reload only if a tab was open before installation.
+        </p>
+        <form id="exclude-form" class="exclude-form" novalidate>
+          <label class="sr-only" for="exclude-input">Hostname to exclude</label>
+          <input
+            id="exclude-input"
+            type="text"
+            placeholder="example.com"
+            autocomplete="off"
+            spellcheck="false"
+          />
+          <button id="exclude-add" type="submit">Add host</button>
+          <button id="exclude-clear" type="button">Clear all</button>
+        </form>
+        <p id="exclude-empty" class="hint">No excluded websites.</p>
+        <ul id="exclude-list" class="exclude-list" aria-label="Excluded hosts"></ul>
+      </fieldset>
+
+      <p id="message" class="status" role="status" aria-live="polite"></p>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

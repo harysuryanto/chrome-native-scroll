@@ -1,40 +1,75 @@
 import '../ui/styles.css';
-import { type NativeScrollSettings } from '../shared/settings';
+import {
+  addExcludedHost,
+  clearExcludedHosts,
+  removeExcludedHost,
+  type NativeScrollSettings,
+} from '../shared/settings';
 import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
 
 let settings: NativeScrollSettings | null = null;
 let saving = false;
-const selectors = {
-  enabled: '#enabled',
-  cssSmoothScrolling: '#css',
-  smoothScrollApis: '#apis',
-  wheelOptimization: '#wheel',
-  libraryAdapters: '#libraries',
-} as const;
 
-function control(selector: string): HTMLInputElement | null {
-  return document.querySelector<HTMLInputElement>(selector);
+const enabledEl = document.querySelector<HTMLInputElement>('#enabled');
+const cssEl = document.querySelector<HTMLInputElement>('#css');
+const apisEl = document.querySelector<HTMLInputElement>('#apis');
+const excludeForm = document.querySelector<HTMLFormElement>('#exclude-form');
+const excludeInput = document.querySelector<HTMLInputElement>('#exclude-input');
+const excludeAddBtn = document.querySelector<HTMLButtonElement>('#exclude-add');
+const excludeClearBtn = document.querySelector<HTMLButtonElement>('#exclude-clear');
+const excludeList = document.querySelector<HTMLUListElement>('#exclude-list');
+const excludeEmpty = document.querySelector<HTMLElement>('#exclude-empty');
+const messageEl = document.querySelector<HTMLElement>('#message');
+
+function setStatus(text: string): void {
+  if (messageEl) messageEl.textContent = text;
+}
+
+function renderExclusions(hosts: readonly string[]): void {
+  if (!excludeList || !excludeEmpty || !excludeClearBtn) return;
+  excludeList.textContent = '';
+  excludeEmpty.hidden = hosts.length > 0;
+  excludeClearBtn.disabled = saving || hosts.length === 0;
+
+  for (const host of hosts) {
+    const li = document.createElement('li');
+    li.className = 'exclude-item';
+
+    const span = document.createElement('span');
+    span.className = 'exclude-host';
+    span.textContent = host;
+
+    const removeBtn = document.createElement('button');
+    removeBtn.type = 'button';
+    removeBtn.textContent = 'Remove';
+    removeBtn.disabled = saving;
+    removeBtn.setAttribute('aria-label', `Remove ${host} from exclusions`);
+    removeBtn.addEventListener('click', () => {
+      updateSettings((current) => removeExcludedHost(current, host), `Removed ${host}.`);
+    });
+
+    li.append(span, removeBtn);
+    excludeList.appendChild(li);
+  }
 }
 
 function render(): void {
   if (!settings) return;
-  const global = control(selectors.enabled);
-  if (global) {
-    global.checked = settings.enabled;
-    global.disabled = saving;
+  if (enabledEl) {
+    enabledEl.checked = settings.enabled;
+    enabledEl.disabled = saving;
   }
-  for (const feature of ['cssSmoothScrolling', 'smoothScrollApis'] as const) {
-    const element = control(selectors[feature]);
-    if (element) {
-      element.checked = settings.features[feature];
-      element.disabled = saving;
-    }
+  if (cssEl) {
+    cssEl.checked = settings.features.cssSmoothScrolling;
+    cssEl.disabled = saving;
   }
-  for (const feature of ['wheelOptimization', 'libraryAdapters'] as const) {
-    const element = control(selectors[feature]);
-    if (element) element.checked = settings.features[feature];
-    // Remaining feature toggles stay disabled until their implementations ship.
+  if (apisEl) {
+    apisEl.checked = settings.features.smoothScrollApis;
+    apisEl.disabled = saving;
   }
+  if (excludeAddBtn) excludeAddBtn.disabled = saving;
+  if (excludeInput) excludeInput.disabled = saving;
+  renderExclusions(settings.excludedHosts);
 }
 
 const unsubscribe = observeSettings((next) => {
@@ -45,17 +80,20 @@ window.addEventListener('pagehide', unsubscribe, { once: true });
 
 function updateSettings(
   mutator: (current: NativeScrollSettings) => NativeScrollSettings,
+  successText = '',
 ): void {
   if (saving) return;
   saving = true;
+  setStatus('');
   render();
   void (async () => {
     try {
       const current = await loadSettings();
       await saveSettings(mutator(current));
       settings = await loadSettings();
+      if (successText) setStatus(successText);
     } catch (error) {
-      document.querySelector<HTMLElement>('#message')!.textContent = 'Unable to save settings.';
+      setStatus('Unable to save settings.');
       console.warn('NativeScroll options save failed:', error);
     } finally {
       saving = false;
@@ -64,37 +102,52 @@ function updateSettings(
   })();
 }
 
-control(selectors.enabled)?.addEventListener('change', () => {
-  const element = control(selectors.enabled);
-  if (!element) return;
-  const checked = element.checked;
+enabledEl?.addEventListener('change', () => {
+  const checked = enabledEl.checked;
   updateSettings((current) => ({ ...current, enabled: checked }));
 });
 
-control(selectors.cssSmoothScrolling)?.addEventListener('change', () => {
-  const element = control(selectors.cssSmoothScrolling);
-  if (!element) return;
-  const checked = element.checked;
+cssEl?.addEventListener('change', () => {
+  const checked = cssEl.checked;
   updateSettings((current) => ({
     ...current,
     features: { ...current.features, cssSmoothScrolling: checked },
   }));
 });
 
-control(selectors.smoothScrollApis)?.addEventListener('change', () => {
-  const element = control(selectors.smoothScrollApis);
-  if (!element) return;
-  const checked = element.checked;
+apisEl?.addEventListener('change', () => {
+  const checked = apisEl.checked;
   updateSettings((current) => ({
     ...current,
     features: { ...current.features, smoothScrollApis: checked },
   }));
 });
 
-void loadSettings().then((next) => {
-  settings = next;
-  render();
-}).catch((error: unknown) => {
-  document.querySelector<HTMLElement>('#message')!.textContent = 'Unable to load settings.';
-  console.warn('NativeScroll options initialization failed:', error);
+excludeForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  if (!excludeInput || !settings || saving) return;
+  const raw = excludeInput.value;
+  const preview = addExcludedHost(settings, raw);
+  if (!preview.host) {
+    setStatus('Enter a valid hostname such as example.com (no protocol, path, or wildcards).');
+    excludeInput.focus();
+    return;
+  }
+  const addedHost = preview.host;
+  excludeInput.value = '';
+  updateSettings((current) => addExcludedHost(current, addedHost).settings, `Excluded ${addedHost}.`);
 });
+
+excludeClearBtn?.addEventListener('click', () => {
+  updateSettings((current) => clearExcludedHosts(current), 'Cleared all excluded websites.');
+});
+
+void loadSettings()
+  .then((next) => {
+    settings = next;
+    render();
+  })
+  .catch((error: unknown) => {
+    setStatus('Unable to load settings.');
+    console.warn('NativeScroll options initialization failed:', error);
+  });
