@@ -21,6 +21,18 @@
           <span>Enable NativeScroll globally</span>
           <input id="enabled" type="checkbox" role="switch" disabled />
         </label>
+        <label class="setting">
+          <span>Default operating mode</span>
+          <select id="default-mode" disabled>
+            <option value="native">Native (Default — CSS &amp; JS APIs only)</option>
+            <option value="compatibility">Compatibility (+ verified library adapters)</option>
+            <option value="strict">Strict (Experimental — + wheel guard)</option>
+          </select>
+        </label>
+        <p id="strict-warning" class="warning" hidden>
+          Strict mode experimentally guards root non-passive wheel listeners. Maps, editors, zoom,
+          horizontal and nested scrolling are preserved, but custom wheel carousels may behave differently.
+        </p>
       </section>
 
       <fieldset>
@@ -57,6 +69,10 @@
         <p id="exclude-empty" class="hint">No excluded websites.</p>
         <ul id="exclude-list" class="exclude-list" aria-label="Excluded hosts"></ul>
       </fieldset>
+
+      <div class="footer">
+        <button id="restore-defaults" type="button">Restore defaults</button>
+      </div>
 
       <p id="message" class="status" role="status" aria-live="polite"></p>
     </main>
