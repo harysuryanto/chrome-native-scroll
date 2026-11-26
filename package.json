@@ -13,6 +13,7 @@
     "test:e2e": "playwright test",
     "benchmark": "bun scripts/benchmark.mjs",
     "profile": "bun scripts/profile.mjs",
+    "package": "bun scripts/package-release.mjs",
     "fixtures": "bun scripts/serve-fixtures.mjs",
     "format": "prettier --write .",
     "format:check": "prettier --check ."
