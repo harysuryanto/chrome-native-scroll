@@ -6,13 +6,17 @@ import {
   isMainWorldConfig,
   type MainWorldConfig,
 } from '../shared/bridge';
+import { createAdapterManager } from './adapters/registry';
 import { createScrollApiPatchController } from './scroll-api-patch';
 import { createWheelOptimizer } from './wheel-optimizer';
 
 // MAIN-world entry point. Runs in the page JS context with zero privileged extension APIs.
 const scrollApiPatch = createScrollApiPatchController();
 const wheelOptimizer = createWheelOptimizer();
+const adapterManager = createAdapterManager();
+
 wheelOptimizer.installObserver();
+adapterManager.attachLifecycleListeners();
 
 function applyConfig(config: MainWorldConfig): void {
   if (config.active && config.smoothScrollApis) {
@@ -20,6 +24,12 @@ function applyConfig(config: MainWorldConfig): void {
   } else {
     scrollApiPatch.disable();
   }
+
+  const adaptersAllowed =
+    config.active &&
+    config.libraryAdapters &&
+    (config.mode === 'compatibility' || config.mode === 'strict');
+  adapterManager.setEnabled(adaptersAllowed);
 
   wheelOptimizer.setStrict(config.active && config.mode === 'strict' && config.wheelOptimization);
 }
