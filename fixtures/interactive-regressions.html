@@ -1,0 +1,67 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — Interactive Compatibility Regressions</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; padding: 24px; height: 3000px; }
+      .grid { display: grid; grid-template-columns: repeat(2, 320px); gap: 16px; }
+      #nested-box { width: 320px; height: 150px; overflow-y: auto; border: 2px solid #0f172a; }
+      #nested-box .inner { height: 800px; padding: 8px; }
+      #horiz-box { width: 320px; height: 120px; overflow-x: auto; border: 2px solid #0f172a; }
+      #horiz-box .wide { width: 1600px; height: 100%; padding: 8px; }
+      #map-canvas { width: 320px; height: 150px; border: 2px solid #2563eb; background: #eff6ff; display: block; }
+      #editor { width: 320px; height: 150px; }
+      #carousel { width: 320px; height: 120px; border: 2px solid #9333ea; padding: 12px; }
+    </style>
+  </head>
+  <body>
+    <h1>Interactive Compatibility Regressions</h1>
+    <div class="grid">
+      <div id="nested-box"><div class="inner">Nested vertical container</div></div>
+      <div id="horiz-box"><div class="wide">Horizontal scroll strip</div></div>
+      <canvas id="map-canvas" width="320" height="150"></canvas>
+      <textarea id="editor" rows="8"></textarea>
+      <div id="carousel">Carousel slide: <span id="slide-index">0</span></div>
+    </div>
+    <p>Zoom events: <span id="zoom-count">0</span> | Canvas wheel: <span id="canvas-wheel-count">0</span></p>
+    <script>
+      document.getElementById('editor').value = Array.from({ length: 40 }, (_, i) => `Line ${i + 1}`).join('\n');
+
+      let zoomCount = 0;
+      window.addEventListener(
+        'wheel',
+        (e) => {
+          if (e.ctrlKey) {
+            e.preventDefault();
+            zoomCount += 1;
+            document.getElementById('zoom-count').textContent = String(zoomCount);
+          }
+        },
+        { passive: false },
+      );
+
+      let canvasWheels = 0;
+      document.getElementById('map-canvas').addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          canvasWheels += 1;
+          document.getElementById('canvas-wheel-count').textContent = String(canvasWheels);
+        },
+        { passive: false },
+      );
+
+      let slide = 0;
+      document.getElementById('carousel').addEventListener(
+        'wheel',
+        (e) => {
+          e.preventDefault();
+          slide += e.deltaY > 0 ? 1 : -1;
+          document.getElementById('slide-index').textContent = String(slide);
+        },
+        { passive: false },
+      );
+    </script>
+  </body>
+</html>
