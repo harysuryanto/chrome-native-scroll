@@ -2,17 +2,17 @@ import { SETTINGS_KEY, normalizeSettings } from '../shared/settings';
 import { loadSettings, observeSettings } from '../shared/storage';
 
 const ACTIVE_ICONS = {
-  16: 'icons/icon-16.png',
-  32: 'icons/icon-32.png',
-  48: 'icons/icon-48.png',
-  128: 'icons/icon-128.png',
+  16: '/icons/icon-16.png',
+  32: '/icons/icon-32.png',
+  48: '/icons/icon-48.png',
+  128: '/icons/icon-128.png',
 };
 
 const DISABLED_ICONS = {
-  16: 'icons/icon-disabled-16.png',
-  32: 'icons/icon-disabled-32.png',
-  48: 'icons/icon-disabled-48.png',
-  128: 'icons/icon-disabled-128.png',
+  16: '/icons/icon-disabled-16.png',
+  32: '/icons/icon-disabled-32.png',
+  48: '/icons/icon-disabled-48.png',
+  128: '/icons/icon-disabled-128.png',
 };
 
 async function syncActionIcon(enabled: boolean): Promise<void> {
