@@ -7,9 +7,12 @@ import {
   type MainWorldConfig,
 } from '../shared/bridge';
 import { createScrollApiPatchController } from './scroll-api-patch';
+import { createWheelOptimizer } from './wheel-optimizer';
 
 // MAIN-world entry point. Runs in the page JS context with zero privileged extension APIs.
 const scrollApiPatch = createScrollApiPatchController();
+const wheelOptimizer = createWheelOptimizer();
+wheelOptimizer.installObserver();
 
 function applyConfig(config: MainWorldConfig): void {
   if (config.active && config.smoothScrollApis) {
@@ -17,6 +20,8 @@ function applyConfig(config: MainWorldConfig): void {
   } else {
     scrollApiPatch.disable();
   }
+
+  wheelOptimizer.setStrict(config.active && config.mode === 'strict' && config.wheelOptimization);
 }
 
 document.addEventListener(CONFIG_EVENT, (event: Event) => {
