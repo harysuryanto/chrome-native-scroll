@@ -1,29 +1,81 @@
 import '../ui/styles.css';
-import {
-  isEnabledForHost,
-  normalizeHostname,
-  type NativeScrollSettings,
-} from '../shared/settings';
+import { STATE_MESSAGE } from '../shared/messages';
+import { isEnabledForHost, type NativeScrollSettings } from '../shared/settings';
 import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
+import { classifyTabUrl, type TabSupportResult } from '../shared/url';
 
 const enabled = document.querySelector<HTMLInputElement>('#enabled');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
 const site = document.querySelector<HTMLElement>('#current-site');
+const siteDetail = document.querySelector<HTMLElement>('#site-detail');
+const siteBadge = document.querySelector<HTMLElement>('#site-badge');
 const message = document.querySelector<HTMLElement>('#message');
+const versionEl = document.querySelector<HTMLElement>('#version');
 
 let settings: NativeScrollSettings | null = null;
-let hostname: string | null = null;
+let tabSupport: TabSupportResult = {
+  supported: false,
+  hostname: null,
+  reason: 'Checking current site…',
+};
+let tabState: { ready: boolean; active: boolean; cssOverrideActive?: boolean } | null = null;
+let tabResponded = false;
 let saving = false;
+
+if (versionEl) {
+  const version = chrome.runtime.getManifest?.().version ?? '0.1.0';
+  versionEl.textContent = `v${version}`;
+}
+
+function setBadge(label: string, state: 'active' | 'muted' | 'warn' | 'neutral'): void {
+  if (!siteBadge) return;
+  siteBadge.textContent = label;
+  siteBadge.dataset.state = state;
+}
 
 function render(): void {
   if (!settings || !enabled || !siteEnabled || !site) return;
+
   enabled.disabled = saving;
   enabled.checked = settings.enabled;
-  siteEnabled.disabled = saving || !hostname;
-  siteEnabled.checked = Boolean(hostname && isEnabledForHost(
-    { ...settings, enabled: true }, hostname,
-  ));
-  site.textContent = hostname ? `Website: ${hostname}` : 'This page does not support NativeScroll.';
+
+  if (!tabSupport.supported) {
+    site.textContent = 'Unsupported page';
+    if (siteDetail) siteDetail.textContent = tabSupport.reason;
+    siteEnabled.checked = false;
+    siteEnabled.disabled = true;
+    setBadge('Unsupported', 'muted');
+    return;
+  }
+
+  const host = tabSupport.hostname;
+  const hostAllowed = isEnabledForHost({ ...settings, enabled: true }, host);
+  const effectiveActive = isEnabledForHost(settings, host);
+
+  site.textContent = host;
+  siteEnabled.disabled = saving;
+  siteEnabled.checked = hostAllowed;
+
+  if (!settings.enabled) {
+    setBadge('Disabled', 'muted');
+    if (siteDetail) siteDetail.textContent = 'NativeScroll is turned off globally.';
+  } else if (!hostAllowed) {
+    setBadge('Excluded', 'warn');
+    if (siteDetail) siteDetail.textContent = 'Original website scrolling is preserved on this host.';
+  } else if (!tabResponded) {
+    setBadge('Reload needed', 'warn');
+    if (siteDetail) {
+      siteDetail.textContent = 'Reload this tab to activate NativeScroll on already-open pages.';
+    }
+  } else if (effectiveActive && tabState?.ready) {
+    setBadge('Active', 'active');
+    if (siteDetail) {
+      siteDetail.textContent = 'CSS and smooth-scroll APIs normalized on this host.';
+    }
+  } else {
+    setBadge('Active', 'active');
+    if (siteDetail) siteDetail.textContent = 'Enabled for this host.';
+  }
 }
 
 const unsubscribe = observeSettings((next) => {
@@ -32,7 +84,9 @@ const unsubscribe = observeSettings((next) => {
 });
 window.addEventListener('pagehide', unsubscribe, { once: true });
 
-async function modify(mutator: (current: NativeScrollSettings) => NativeScrollSettings): Promise<void> {
+async function modify(
+  mutator: (current: NativeScrollSettings) => NativeScrollSettings,
+): Promise<void> {
   if (!settings || saving) return;
   saving = true;
   if (message) message.textContent = '';
@@ -56,8 +110,8 @@ enabled?.addEventListener('change', () => {
 });
 
 siteEnabled?.addEventListener('change', () => {
-  if (!hostname) return;
-  const selected = hostname;
+  if (!tabSupport.supported) return;
+  const selected = tabSupport.hostname;
   const checked = siteEnabled.checked;
   void modify((current) => ({
     ...current,
@@ -71,17 +125,38 @@ document.querySelector<HTMLButtonElement>('#settings')?.addEventListener('click'
   void chrome.runtime.openOptionsPage();
 });
 
+async function queryTabState(tabId: number): Promise<void> {
+  try {
+    const response = (await chrome.tabs.sendMessage(tabId, { type: STATE_MESSAGE })) as {
+      ready?: boolean;
+      active?: boolean;
+      cssOverrideActive?: boolean;
+    } | null;
+    if (response && typeof response === 'object') {
+      tabResponded = true;
+      tabState = {
+        ready: Boolean(response.ready),
+        active: Boolean(response.active),
+        cssOverrideActive: Boolean(response.cssOverrideActive),
+      };
+    }
+  } catch {
+    tabResponded = false;
+    tabState = null;
+  }
+}
+
 void Promise.all([loadSettings(), chrome.tabs.query({ active: true, currentWindow: true })])
-  .then(([loaded, tabs]) => {
+  .then(async ([loaded, tabs]) => {
     settings = loaded;
-    try {
-      const url = tabs[0]?.url;
-      hostname = url ? normalizeHostname(new URL(url).hostname) : null;
-    } catch {
-      hostname = null;
+    const activeTab = tabs[0];
+    tabSupport = classifyTabUrl(activeTab?.url);
+    if (tabSupport.supported && typeof activeTab?.id === 'number') {
+      await queryTabState(activeTab.id);
     }
     render();
-  }).catch((error: unknown) => {
+  })
+  .catch((error: unknown) => {
     if (message) message.textContent = 'Unable to load NativeScroll settings.';
     console.warn('NativeScroll popup initialization failed:', error);
   });

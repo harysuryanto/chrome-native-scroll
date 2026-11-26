@@ -7,17 +7,41 @@
     <title>NativeScroll</title>
   </head>
   <body>
-    <main class="panel" aria-labelledby="title">
-      <div class="brand-mark" aria-hidden="true">↕</div>
-      <h1 id="title">NativeScroll</h1>
-      <p class="tagline">Back to native scrolling.</p>
-      <p class="notice">Settings are persistent. Scrolling interception arrives in subsequent issues.</p>
-      <label class="setting"><span>Enable NativeScroll</span><input id="enabled" type="checkbox" disabled /></label>
-      <p class="status" id="current-site" aria-live="polite">Checking current site…</p>
-      <label class="setting"><span>Enable on this site</span><input id="site-enabled" type="checkbox" disabled /></label>
-      <p id="message" class="status" role="status"></p>
-      <button id="settings" type="button">Open settings</button>
-      <p class="version">v0.1.0 · Settings foundation</p>
+    <main class="panel popup" aria-labelledby="title">
+      <header class="header">
+        <div class="brand-mark" aria-hidden="true">↕</div>
+        <div class="brand-copy">
+          <h1 id="title">NativeScroll</h1>
+          <p class="tagline">Back to native scrolling.</p>
+        </div>
+      </header>
+
+      <section class="card" aria-label="Global controls">
+        <label class="setting">
+          <span>Enable NativeScroll</span>
+          <input id="enabled" type="checkbox" role="switch" disabled />
+        </label>
+      </section>
+
+      <section class="card" aria-label="Current website">
+        <div class="site-row">
+          <span class="site-label">Current site</span>
+          <span id="site-badge" class="badge" data-state="neutral">Checking…</span>
+        </div>
+        <p class="site-host" id="current-site" aria-live="polite">Checking current site…</p>
+        <p class="site-detail" id="site-detail" aria-live="polite"></p>
+        <label class="setting">
+          <span>Enable on this site</span>
+          <input id="site-enabled" type="checkbox" role="switch" disabled />
+        </label>
+      </section>
+
+      <p id="message" class="status" role="status" aria-live="polite"></p>
+
+      <footer class="footer">
+        <button id="settings" type="button">Open settings</button>
+        <p id="version" class="version">v0.1.0</p>
+      </footer>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>
