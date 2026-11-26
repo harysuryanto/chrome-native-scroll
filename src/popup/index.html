@@ -34,6 +34,18 @@
           <span>Enable on this site</span>
           <input id="site-enabled" type="checkbox" role="switch" disabled />
         </label>
+        <label class="setting">
+          <span>Site mode</span>
+          <select id="site-mode" disabled>
+            <option value="default">Use default</option>
+            <option value="native">Native</option>
+            <option value="compatibility">Compatibility</option>
+            <option value="strict">Strict (Experimental)</option>
+          </select>
+        </label>
+        <p id="strict-warning" class="warning" hidden>
+          Strict mode experimentally guards root wheel hijackers and may affect wheel-driven carousels.
+        </p>
       </section>
 
       <p id="message" class="status" role="status" aria-live="polite"></p>

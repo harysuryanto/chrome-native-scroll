@@ -13,6 +13,7 @@ export interface FeatureSettings {
 export interface NativeScrollSettings {
   schemaVersion: typeof SETTINGS_VERSION;
   enabled: boolean;
+  defaultMode: SiteMode;
   features: FeatureSettings;
   excludedHosts: string[];
   siteModes: Record<string, SiteMode>;
@@ -21,6 +22,7 @@ export interface NativeScrollSettings {
 export const DEFAULT_SETTINGS: Readonly<NativeScrollSettings> = Object.freeze({
   schemaVersion: SETTINGS_VERSION,
   enabled: true,
+  defaultMode: 'native',
   features: Object.freeze({
     cssSmoothScrolling: true,
     smoothScrollApis: true,
@@ -37,14 +39,25 @@ function record(value: unknown): Record<string, unknown> | null {
     : null;
 }
 
+function isSiteMode(value: unknown): value is SiteMode {
+  return value === 'native' || value === 'compatibility' || value === 'strict';
+}
+
 export function normalizeHostname(value: unknown): string | null {
   if (typeof value !== 'string') return null;
   const hostname = value.trim().toLowerCase().replace(/\.$/, '');
   // Restrict stored entries to valid DNS-style or localhost hosts, not URLs or wildcards.
   if (hostname === 'localhost') return hostname;
   if (hostname.length > 253 || !hostname || hostname.includes('..')) return null;
-  if (!hostname.split('.').every((label) => label.length > 0 && label.length <= 63 &&
-    /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label))) return null;
+  if (
+    !hostname
+      .split('.')
+      .every(
+        (label) =>
+          label.length > 0 && label.length <= 63 && /^[a-z0-9](?:[a-z0-9-]*[a-z0-9])?$/.test(label),
+      )
+  )
+    return null;
   return hostname;
 }
 
@@ -60,16 +73,18 @@ export function normalizeSettings(input: unknown): NativeScrollSettings {
 
   const hosts = Array.isArray(source.excludedHosts)
     ? source.excludedHosts
-    : Array.isArray(old.disabledSites) ? old.disabledSites : [];
-  const excludedHosts = [...new Set(hosts.map(normalizeHostname).filter(
-    (host): host is string => host !== null,
-  ))].slice(0, 1000);
+    : Array.isArray(old.disabledSites)
+      ? old.disabledSites
+      : [];
+  const excludedHosts = [
+    ...new Set(hosts.map(normalizeHostname).filter((host): host is string => host !== null)),
+  ].slice(0, 1000);
 
   const rawModes = record(source.siteModes) ?? {};
   const siteModes: Record<string, SiteMode> = Object.create(null) as Record<string, SiteMode>;
   for (const [key, mode] of Object.entries(rawModes).slice(0, 1000)) {
     const host = normalizeHostname(key);
-    if (host && (mode === 'native' || mode === 'compatibility' || mode === 'strict')) {
+    if (host && isSiteMode(mode)) {
       siteModes[host] = mode;
     }
   }
@@ -77,6 +92,7 @@ export function normalizeSettings(input: unknown): NativeScrollSettings {
   return {
     schemaVersion: SETTINGS_VERSION,
     enabled: bool(source.enabled, DEFAULT_SETTINGS.enabled),
+    defaultMode: isSiteMode(source.defaultMode) ? source.defaultMode : DEFAULT_SETTINGS.defaultMode,
     features: {
       cssSmoothScrolling: bool(features.cssSmoothScrolling, true),
       smoothScrollApis: bool(features.smoothScrollApis, true),
@@ -91,6 +107,30 @@ export function normalizeSettings(input: unknown): NativeScrollSettings {
 export function isEnabledForHost(settings: NativeScrollSettings, hostname: string): boolean {
   const host = normalizeHostname(hostname);
   return settings.enabled && host !== null && !settings.excludedHosts.includes(host);
+}
+
+export function getEffectiveMode(settings: NativeScrollSettings, hostname: string): SiteMode {
+  const host = normalizeHostname(hostname);
+  if (host && settings.siteModes[host]) {
+    return settings.siteModes[host];
+  }
+  return settings.defaultMode;
+}
+
+export function setSiteMode(
+  settings: NativeScrollSettings,
+  rawHost: string,
+  mode: SiteMode | 'default',
+): NativeScrollSettings {
+  const host = normalizeHostname(rawHost);
+  if (!host) return settings;
+  const nextModes: Record<string, SiteMode> = { ...settings.siteModes };
+  if (mode === 'default') {
+    delete nextModes[host];
+  } else {
+    nextModes[host] = mode;
+  }
+  return normalizeSettings({ ...settings, siteModes: nextModes });
 }
 
 export function addExcludedHost(
@@ -124,4 +164,8 @@ export function removeExcludedHost(
 export function clearExcludedHosts(settings: NativeScrollSettings): NativeScrollSettings {
   if (settings.excludedHosts.length === 0) return settings;
   return normalizeSettings({ ...settings, excludedHosts: [] });
+}
+
+export function resetSettingsToDefaults(): NativeScrollSettings {
+  return normalizeSettings(DEFAULT_SETTINGS);
 }

@@ -1,4 +1,8 @@
-import { isEnabledForHost, type NativeScrollSettings } from '../shared/settings';
+import {
+  getEffectiveMode,
+  isEnabledForHost,
+  type NativeScrollSettings,
+} from '../shared/settings';
 import { loadSettings, observeSettings } from '../shared/storage';
 import { isExtensionRequest, PING_MESSAGE } from '../shared/messages';
 import { CONFIG_EVENT, MAIN_READY_EVENT, type MainWorldConfig } from '../shared/bridge';
@@ -16,12 +20,12 @@ function isHostActive(): boolean {
 
 function buildMainWorldConfig(): MainWorldConfig {
   const active = isHostActive();
-  const mode = currentSettings?.siteModes[hostname] ?? 'native';
+  const mode = currentSettings ? getEffectiveMode(currentSettings, hostname) : 'native';
   return {
     active,
     smoothScrollApis: Boolean(active && currentSettings?.features.smoothScrollApis),
-    wheelOptimization: Boolean(active && currentSettings?.features.wheelOptimization),
-    libraryAdapters: Boolean(active && currentSettings?.features.libraryAdapters),
+    wheelOptimization: Boolean(active && mode === 'strict'),
+    libraryAdapters: Boolean(active && (mode === 'compatibility' || mode === 'strict')),
     mode,
   };
 }

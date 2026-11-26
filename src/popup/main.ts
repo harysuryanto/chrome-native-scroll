@@ -1,11 +1,19 @@
 import '../ui/styles.css';
 import { STATE_MESSAGE } from '../shared/messages';
-import { isEnabledForHost, type NativeScrollSettings } from '../shared/settings';
+import {
+  getEffectiveMode,
+  isEnabledForHost,
+  setSiteMode,
+  type NativeScrollSettings,
+  type SiteMode,
+} from '../shared/settings';
 import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
 import { classifyTabUrl, type TabSupportResult } from '../shared/url';
 
 const enabled = document.querySelector<HTMLInputElement>('#enabled');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
+const siteModeSelect = document.querySelector<HTMLSelectElement>('#site-mode');
+const strictWarning = document.querySelector<HTMLElement>('#strict-warning');
 const site = document.querySelector<HTMLElement>('#current-site');
 const siteDetail = document.querySelector<HTMLElement>('#site-detail');
 const siteBadge = document.querySelector<HTMLElement>('#site-badge');
@@ -44,6 +52,11 @@ function render(): void {
     if (siteDetail) siteDetail.textContent = tabSupport.reason;
     siteEnabled.checked = false;
     siteEnabled.disabled = true;
+    if (siteModeSelect) {
+      siteModeSelect.value = 'default';
+      siteModeSelect.disabled = true;
+    }
+    if (strictWarning) strictWarning.hidden = true;
     setBadge('Unsupported', 'muted');
     return;
   }
@@ -51,10 +64,19 @@ function render(): void {
   const host = tabSupport.hostname;
   const hostAllowed = isEnabledForHost({ ...settings, enabled: true }, host);
   const effectiveActive = isEnabledForHost(settings, host);
+  const effectiveMode = getEffectiveMode(settings, host);
 
   site.textContent = host;
   siteEnabled.disabled = saving;
   siteEnabled.checked = hostAllowed;
+
+  if (siteModeSelect) {
+    siteModeSelect.disabled = saving || !hostAllowed;
+    siteModeSelect.value = settings.siteModes[host] ?? 'default';
+  }
+  if (strictWarning) {
+    strictWarning.hidden = !(effectiveActive && effectiveMode === 'strict');
+  }
 
   if (!settings.enabled) {
     setBadge('Disabled', 'muted');
@@ -119,6 +141,13 @@ siteEnabled?.addEventListener('change', () => {
       ? current.excludedHosts.filter((host) => host !== selected)
       : [...current.excludedHosts.filter((host) => host !== selected), selected],
   }));
+});
+
+siteModeSelect?.addEventListener('change', () => {
+  if (!tabSupport.supported) return;
+  const selected = tabSupport.hostname;
+  const value = siteModeSelect.value as SiteMode | 'default';
+  void modify((current) => setSiteMode(current, selected, value));
 });
 
 document.querySelector<HTMLButtonElement>('#settings')?.addEventListener('click', () => {

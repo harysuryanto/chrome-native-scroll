@@ -3,7 +3,9 @@ import {
   addExcludedHost,
   clearExcludedHosts,
   removeExcludedHost,
+  resetSettingsToDefaults,
   type NativeScrollSettings,
+  type SiteMode,
 } from '../shared/settings';
 import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
 
@@ -11,6 +13,9 @@ let settings: NativeScrollSettings | null = null;
 let saving = false;
 
 const enabledEl = document.querySelector<HTMLInputElement>('#enabled');
+const defaultModeEl = document.querySelector<HTMLSelectElement>('#default-mode');
+const strictWarningEl = document.querySelector<HTMLElement>('#strict-warning');
+const restoreDefaultsBtn = document.querySelector<HTMLButtonElement>('#restore-defaults');
 const cssEl = document.querySelector<HTMLInputElement>('#css');
 const apisEl = document.querySelector<HTMLInputElement>('#apis');
 const excludeForm = document.querySelector<HTMLFormElement>('#exclude-form');
@@ -59,6 +64,14 @@ function render(): void {
     enabledEl.checked = settings.enabled;
     enabledEl.disabled = saving;
   }
+  if (defaultModeEl) {
+    defaultModeEl.value = settings.defaultMode;
+    defaultModeEl.disabled = saving;
+  }
+  if (strictWarningEl) {
+    strictWarningEl.hidden = settings.defaultMode !== 'strict';
+  }
+  if (restoreDefaultsBtn) restoreDefaultsBtn.disabled = saving;
   if (cssEl) {
     cssEl.checked = settings.features.cssSmoothScrolling;
     cssEl.disabled = saving;
@@ -136,6 +149,15 @@ excludeForm?.addEventListener('submit', (event) => {
   const addedHost = preview.host;
   excludeInput.value = '';
   updateSettings((current) => addExcludedHost(current, addedHost).settings, `Excluded ${addedHost}.`);
+});
+
+defaultModeEl?.addEventListener('change', () => {
+  const mode = defaultModeEl.value as SiteMode;
+  updateSettings((current) => ({ ...current, defaultMode: mode }), `Default mode set to ${mode}.`);
+});
+
+restoreDefaultsBtn?.addEventListener('click', () => {
+  updateSettings(() => resetSettingsToDefaults(), 'Restored default settings.');
 });
 
 excludeClearBtn?.addEventListener('click', () => {
