@@ -23,10 +23,15 @@ function render(): void {
     global.checked = settings.enabled;
     global.disabled = saving;
   }
-  for (const feature of Object.keys(settings.features) as (keyof NativeScrollSettings['features'])[]) {
+  const css = control(selectors.cssSmoothScrolling);
+  if (css) {
+    css.checked = settings.features.cssSmoothScrolling;
+    css.disabled = saving;
+  }
+  for (const feature of ['smoothScrollApis', 'wheelOptimization', 'libraryAdapters'] as const) {
     const element = control(selectors[feature]);
     if (element) element.checked = settings.features[feature];
-    // Feature toggles stay disabled until their implementations ship.
+    // Remaining feature toggles stay disabled until their implementations ship.
   }
 }
 
@@ -36,16 +41,16 @@ const unsubscribe = observeSettings((next) => {
 });
 window.addEventListener('pagehide', unsubscribe, { once: true });
 
-control(selectors.enabled)?.addEventListener('change', () => {
-  const element = control(selectors.enabled);
-  if (!element || saving) return;
-  const checked = element.checked;
+function updateSettings(
+  mutator: (current: NativeScrollSettings) => NativeScrollSettings,
+): void {
+  if (saving) return;
   saving = true;
   render();
   void (async () => {
     try {
       const current = await loadSettings();
-      await saveSettings({ ...current, enabled: checked });
+      await saveSettings(mutator(current));
       settings = await loadSettings();
     } catch (error) {
       document.querySelector<HTMLElement>('#message')!.textContent = 'Unable to save settings.';
@@ -55,6 +60,23 @@ control(selectors.enabled)?.addEventListener('change', () => {
       render();
     }
   })();
+}
+
+control(selectors.enabled)?.addEventListener('change', () => {
+  const element = control(selectors.enabled);
+  if (!element) return;
+  const checked = element.checked;
+  updateSettings((current) => ({ ...current, enabled: checked }));
+});
+
+control(selectors.cssSmoothScrolling)?.addEventListener('change', () => {
+  const element = control(selectors.cssSmoothScrolling);
+  if (!element) return;
+  const checked = element.checked;
+  updateSettings((current) => ({
+    ...current,
+    features: { ...current.features, cssSmoothScrolling: checked },
+  }));
 });
 
 void loadSettings().then((next) => {
