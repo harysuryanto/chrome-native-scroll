@@ -7,6 +7,8 @@ export const CONFIG_EVENT = 'native-scroll:config' as const;
 export const MAIN_READY_EVENT = 'native-scroll:main-ready' as const;
 export const DIAGNOSTIC_PING_EVENT = 'native-scroll:diagnostic-ping' as const;
 export const MAIN_WORLD_READY_EVENT = 'native-scroll:main-world-ready' as const;
+export const DIAGNOSTICS_REQUEST_EVENT = 'native-scroll:diagnostics-request' as const;
+export const DIAGNOSTICS_REPORT_EVENT = 'native-scroll:diagnostics-report' as const;
 
 export interface MainWorldConfig {
   readonly active: boolean;

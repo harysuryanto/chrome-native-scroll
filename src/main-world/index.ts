@@ -1,5 +1,7 @@
 import {
   CONFIG_EVENT,
+  DIAGNOSTICS_REPORT_EVENT,
+  DIAGNOSTICS_REQUEST_EVENT,
   DIAGNOSTIC_PING_EVENT,
   MAIN_READY_EVENT,
   MAIN_WORLD_READY_EVENT,
@@ -49,6 +51,28 @@ document.addEventListener(CONFIG_EVENT, (event: Event) => {
 
 document.addEventListener(DIAGNOSTIC_PING_EVENT, () => {
   document.dispatchEvent(new Event(MAIN_WORLD_READY_EVENT));
+});
+
+document.addEventListener(DIAGNOSTICS_REQUEST_EVENT, () => {
+  adapterManager.refresh();
+  const apiStatus = scrollApiPatch.getStatus();
+  const wheelStatus = wheelOptimizer.getStatus();
+  document.dispatchEvent(
+    new CustomEvent(DIAGNOSTICS_REPORT_EVENT, {
+      detail: {
+        apiPatchState: apiStatus.state,
+        neutralizedApiCalls: apiStatus.neutralizedCalls,
+        nonPassiveRootWheelListeners: wheelStatus.nonPassiveRootListeners,
+        strictWheelActive: wheelStatus.strictActive,
+        adapters: adapterManager.getReports().map((r) => ({
+          id: r.id,
+          name: r.name,
+          status: r.status,
+          detail: r.detail,
+        })),
+      },
+    }),
+  );
 });
 
 // Signal readiness so ISOLATED world can immediately push current config if it loaded first.
