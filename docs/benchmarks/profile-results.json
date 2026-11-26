@@ -1,0 +1,32 @@
+{
+  "timestamp": "2026-11-26T16:35:37.060Z",
+  "environment": {
+    "os": "darwin 25.6.0",
+    "cpu": "Apple M4",
+    "cores": 10
+  },
+  "baseline": {
+    "loadMs": 19.43,
+    "idleTaskDurationMs": 7.55,
+    "singleTabHeapMb": 1.18,
+    "fiveTabPrimaryHeapMb": 1.18,
+    "afterCloseHeapMb": 1.18,
+    "styleInjected": false
+  },
+  "enabled": {
+    "loadMs": 41.29,
+    "idleTaskDurationMs": 4.49,
+    "singleTabHeapMb": 1.67,
+    "fiveTabPrimaryHeapMb": 1.67,
+    "afterCloseHeapMb": 1.67,
+    "styleInjected": true
+  },
+  "disabled": {
+    "loadMs": 15.25,
+    "idleTaskDurationMs": 2.5,
+    "singleTabHeapMb": 1.57,
+    "fiveTabPrimaryHeapMb": 1.57,
+    "afterCloseHeapMb": 1.57,
+    "styleInjected": false
+  }
+}
