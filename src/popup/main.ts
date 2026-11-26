@@ -14,7 +14,8 @@ import { classifyTabUrl, type TabSupportResult } from '../shared/url';
 const enabled = document.querySelector<HTMLInputElement>('#enabled');
 const brandMark = document.querySelector<HTMLElement>('.brand-mark');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
-const siteModeSelect = document.querySelector<HTMLSelectElement>('#site-mode');
+const modeCards = Array.from(document.querySelectorAll<HTMLButtonElement>('.mode-card'));
+const modeDefaultTitle = document.querySelector<HTMLElement>('#mode-default-title');
 const strictWarning = document.querySelector<HTMLElement>('#strict-warning');
 const diagnosticsPanel = document.querySelector<HTMLDetailsElement>('#diagnostics-panel');
 const diagnosticsList = document.querySelector<HTMLUListElement>('#diagnostics-list');
@@ -121,9 +122,9 @@ function render(): void {
     if (siteDetail) siteDetail.textContent = tabSupport.reason;
     siteEnabled.checked = false;
     siteEnabled.disabled = true;
-    if (siteModeSelect) {
-      siteModeSelect.value = 'default';
-      siteModeSelect.disabled = true;
+    for (const card of modeCards) {
+      card.disabled = true;
+      card.setAttribute('aria-checked', 'false');
     }
     if (strictWarning) strictWarning.hidden = true;
     setBadge('Unsupported', 'muted');
@@ -135,14 +136,19 @@ function render(): void {
   const hostAllowed = isEnabledForHost({ ...settings, enabled: true }, host);
   const effectiveActive = isEnabledForHost(settings, host);
   const effectiveMode = getEffectiveMode(settings, host);
+  const selectedMode = settings.siteModes[host] ?? 'default';
 
   site.textContent = host;
   siteEnabled.disabled = saving;
   siteEnabled.checked = hostAllowed;
 
-  if (siteModeSelect) {
-    siteModeSelect.disabled = saving || !hostAllowed;
-    siteModeSelect.value = settings.siteModes[host] ?? 'default';
+  if (modeDefaultTitle) {
+    const label = settings.defaultMode.charAt(0).toUpperCase() + settings.defaultMode.slice(1);
+    modeDefaultTitle.textContent = `Use default (${label})`;
+  }
+  for (const card of modeCards) {
+    card.disabled = saving || !hostAllowed;
+    card.setAttribute('aria-checked', String(card.dataset.mode === selectedMode));
   }
   if (strictWarning) {
     strictWarning.hidden = !(effectiveActive && effectiveMode === 'strict');
@@ -218,12 +224,15 @@ siteEnabled?.addEventListener('change', () => {
   }));
 });
 
-siteModeSelect?.addEventListener('change', () => {
-  if (!tabSupport.supported) return;
-  const selected = tabSupport.hostname;
-  const value = siteModeSelect.value as SiteMode | 'default';
-  void modify((current) => setSiteMode(current, selected, value));
-});
+for (const card of modeCards) {
+  card.addEventListener('click', () => {
+    if (!tabSupport.supported) return;
+    const selected = tabSupport.hostname;
+    const value = card.dataset.mode as SiteMode | 'default' | undefined;
+    if (!value) return;
+    void modify((current) => setSiteMode(current, selected, value));
+  });
+}
 
 document.querySelector<HTMLButtonElement>('#settings')?.addEventListener('click', () => {
   void chrome.runtime.openOptionsPage();

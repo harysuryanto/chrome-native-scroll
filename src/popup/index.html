@@ -35,15 +35,27 @@
           <span>Enable on this site</span>
           <input id="site-enabled" type="checkbox" role="switch" disabled />
         </label>
-        <label class="setting">
-          <span>Site mode</span>
-          <select id="site-mode" disabled>
-            <option value="default">Use default</option>
-            <option value="native">Native</option>
-            <option value="compatibility">Compatibility</option>
-            <option value="strict">Strict (Experimental)</option>
-          </select>
-        </label>
+        <div class="mode-section">
+          <span class="site-label">Site mode</span>
+          <div id="site-mode-cards" class="mode-cards" role="radiogroup" aria-label="Site mode">
+            <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="default" disabled>
+              <span class="mode-card-title" id="mode-default-title">Use default</span>
+              <span class="mode-card-desc">Follows your global default operating mode.</span>
+            </button>
+            <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="native" disabled>
+              <span class="mode-card-title">Native</span>
+              <span class="mode-card-desc">CSS smooth-scroll override and explicit smooth JS APIs only.</span>
+            </button>
+            <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="compatibility" disabled>
+              <span class="mode-card-title">Compatibility</span>
+              <span class="mode-card-desc">Adds verified adapters for Lenis, GSAP ScrollSmoother, and Locomotive Scroll.</span>
+            </button>
+            <button type="button" class="mode-card" role="radio" aria-checked="false" data-mode="strict" disabled>
+              <span class="mode-card-title">Strict (Experimental)</span>
+              <span class="mode-card-desc">Adds conservative root wheel-hijack guard while preserving maps, zoom, and editors.</span>
+            </button>
+          </div>
+        </div>
         <p id="strict-warning" class="warning" hidden>
           Strict mode experimentally guards root wheel hijackers and may affect wheel-driven carousels.
         </p>
