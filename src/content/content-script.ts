@@ -34,8 +34,10 @@ function buildMainWorldConfig(): MainWorldConfig {
   return {
     active,
     smoothScrollApis: Boolean(active && currentSettings?.features.smoothScrollApis),
-    wheelOptimization: Boolean(active && mode === 'strict'),
-    libraryAdapters: Boolean(active && (mode === 'compatibility' || mode === 'strict')),
+    wheelOptimization: Boolean(active && (mode === 'strict' || mode === 'auto')),
+    libraryAdapters: Boolean(
+      active && (mode === 'compatibility' || mode === 'strict' || mode === 'auto'),
+    ),
     mode,
   };
 }

@@ -1,7 +1,7 @@
 export const SETTINGS_KEY = 'nativeScrollSettings';
 export const SETTINGS_VERSION = 1;
 
-export type SiteMode = 'native' | 'compatibility' | 'strict';
+export type SiteMode = 'auto' | 'native' | 'compatibility' | 'strict';
 
 export interface FeatureSettings {
   cssSmoothScrolling: boolean;
@@ -40,7 +40,7 @@ function record(value: unknown): Record<string, unknown> | null {
 }
 
 function isSiteMode(value: unknown): value is SiteMode {
-  return value === 'native' || value === 'compatibility' || value === 'strict';
+  return value === 'auto' || value === 'native' || value === 'compatibility' || value === 'strict';
 }
 
 export function normalizeHostname(value: unknown): string | null {

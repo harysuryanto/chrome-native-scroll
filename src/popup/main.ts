@@ -16,6 +16,7 @@ const brandMark = document.querySelector<HTMLElement>('.brand-mark');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
 const modeCards = Array.from(document.querySelectorAll<HTMLButtonElement>('.mode-card'));
 const modeDefaultTitle = document.querySelector<HTMLElement>('#mode-default-title');
+const modeAutoTitle = document.querySelector<HTMLElement>('#mode-auto-title');
 const strictWarning = document.querySelector<HTMLElement>('#strict-warning');
 const diagnosticsPanel = document.querySelector<HTMLDetailsElement>('#diagnostics-panel');
 const diagnosticsList = document.querySelector<HTMLUListElement>('#diagnostics-list');
@@ -145,6 +146,13 @@ function render(): void {
   if (modeDefaultTitle) {
     const label = settings.defaultMode.charAt(0).toUpperCase() + settings.defaultMode.slice(1);
     modeDefaultTitle.textContent = `Use default (${label})`;
+  }
+  if (modeAutoTitle) {
+    const resolved = tabState?.diagnostics?.resolvedAutoMode;
+    modeAutoTitle.textContent =
+      effectiveMode === 'auto' && resolved
+        ? `Auto (Using ${resolved.charAt(0).toUpperCase() + resolved.slice(1)})`
+        : 'Auto (Least Risk)';
   }
   for (const card of modeCards) {
     card.disabled = saving || !hostAllowed;
