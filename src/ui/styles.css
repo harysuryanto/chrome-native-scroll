@@ -42,6 +42,12 @@ body {
   place-items: center;
   font-size: 20px;
   flex-shrink: 0;
+  transition: opacity 0.15s ease, filter 0.15s ease;
+}
+
+.brand-mark[data-disabled='true'] {
+  opacity: 0.45;
+  filter: grayscale(1);
 }
 
 h1 {

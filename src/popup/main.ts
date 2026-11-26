@@ -12,6 +12,7 @@ import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
 import { classifyTabUrl, type TabSupportResult } from '../shared/url';
 
 const enabled = document.querySelector<HTMLInputElement>('#enabled');
+const brandMark = document.querySelector<HTMLElement>('.brand-mark');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
 const siteModeSelect = document.querySelector<HTMLSelectElement>('#site-mode');
 const strictWarning = document.querySelector<HTMLElement>('#strict-warning');
@@ -92,6 +93,9 @@ function render(): void {
 
   enabled.disabled = saving;
   enabled.checked = settings.enabled;
+  if (brandMark) {
+    brandMark.dataset.disabled = String(!settings.enabled);
+  }
 
   if (!tabSupport.supported) {
     site.textContent = 'Unsupported page';
