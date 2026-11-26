@@ -8,21 +8,48 @@
   </head>
   <body>
     <main class="panel options" aria-labelledby="title">
+      <!-- Header -->
       <header class="header">
-        <div class="brand-mark" aria-hidden="true">↕</div>
+        <div class="brand-mark" aria-hidden="true">
+          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <rect width="38" height="38" rx="10" fill="url(#brand-bg-opt)" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1.2"/>
+            <path d="M11 14 L19 6 L27 14" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <rect x="16.5" y="16.5" width="5" height="5" rx="2.5" fill="#38bdf8"/>
+            <line x1="12" y1="19" x2="14" y2="19" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+            <line x1="24" y1="19" x2="26" y2="19" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
+            <path d="M11 24 L19 32 L27 24" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
+            <defs>
+              <linearGradient id="brand-bg-opt" x1="0" y1="0" x2="0" y2="38" gradientUnits="userSpaceOnUse">
+                <stop offset="0%" stop-color="#0e1726"/>
+                <stop offset="100%" stop-color="#020617"/>
+              </linearGradient>
+            </defs>
+          </svg>
+        </div>
         <div class="brand-copy">
           <h1 id="title">NativeScroll settings</h1>
           <p class="tagline">Back to native scrolling.</p>
         </div>
       </header>
 
+      <!-- General Section -->
       <section class="card" aria-label="General">
-        <label class="setting">
-          <span>Enable NativeScroll globally</span>
-          <input id="enabled" type="checkbox" role="switch" disabled />
+        <label class="setting" for="enabled">
+          <div class="setting-content">
+            <span class="setting-title">Enable NativeScroll globally</span>
+            <span class="setting-desc">Active scroll normalization across all supported websites</span>
+          </div>
+          <div class="switch">
+            <input id="enabled" type="checkbox" role="switch" disabled />
+            <span class="switch-slider" aria-hidden="true"></span>
+          </div>
         </label>
-        <label class="setting">
-          <span>Default operating mode</span>
+
+        <label class="setting" for="default-mode">
+          <div class="setting-content">
+            <span class="setting-title">Default operating mode</span>
+            <span class="setting-desc">Standard profile applied to websites without custom mode overrides</span>
+          </div>
           <select id="default-mode" disabled>
             <option value="auto">Auto (Default — Least risk: Native → Compatibility → Strict)</option>
             <option value="native">Native (CSS &amp; JS APIs only)</option>
@@ -30,24 +57,40 @@
             <option value="strict">Strict (Experimental — + wheel guard)</option>
           </select>
         </label>
+
         <p id="strict-warning" class="warning" hidden>
           Strict mode experimentally guards root non-passive wheel listeners. Maps, editors, zoom,
           horizontal and nested scrolling are preserved, but custom wheel carousels may behave differently.
         </p>
       </section>
 
+      <!-- Active Scrolling Overrides -->
       <fieldset>
         <legend>Active scrolling overrides</legend>
-        <label class="setting">
-          <span>CSS smooth-scroll override (<code>scroll-behavior: auto</code>)</span>
-          <input id="css" type="checkbox" role="switch" disabled />
+        <label class="setting" for="css">
+          <div class="setting-content">
+            <span class="setting-title">CSS smooth-scroll override</span>
+            <span class="setting-desc">Forces <code>scroll-behavior: auto</code> to neutralize artificial animation delays</span>
+          </div>
+          <div class="switch">
+            <input id="css" type="checkbox" role="switch" disabled />
+            <span class="switch-slider" aria-hidden="true"></span>
+          </div>
         </label>
-        <label class="setting">
-          <span>Explicit smooth-scroll APIs (<code>scrollTo</code>, <code>scrollBy</code>, <code>scrollIntoView</code>)</span>
-          <input id="apis" type="checkbox" role="switch" disabled />
+
+        <label class="setting" for="apis">
+          <div class="setting-content">
+            <span class="setting-title">Explicit smooth-scroll APIs</span>
+            <span class="setting-desc">Rewrites smooth calls on <code>scrollTo</code>, <code>scrollBy</code>, and <code>scrollIntoView</code></span>
+          </div>
+          <div class="switch">
+            <input id="apis" type="checkbox" role="switch" disabled />
+            <span class="switch-slider" aria-hidden="true"></span>
+          </div>
         </label>
       </fieldset>
 
+      <!-- Excluded Websites -->
       <fieldset>
         <legend>Excluded websites</legend>
         <p class="hint">
@@ -64,15 +107,21 @@
             autocomplete="off"
             spellcheck="false"
           />
-          <button id="exclude-add" type="submit">Add host</button>
-          <button id="exclude-clear" type="button">Clear all</button>
+          <button id="exclude-add" type="submit" class="primary">Add host</button>
+          <button id="exclude-clear" type="button" class="danger">Clear all</button>
         </form>
         <p id="exclude-empty" class="hint">No excluded websites.</p>
         <ul id="exclude-list" class="exclude-list" aria-label="Excluded hosts"></ul>
       </fieldset>
 
+      <!-- Footer & Actions -->
       <div class="footer">
-        <button id="restore-defaults" type="button">Restore defaults</button>
+        <button id="restore-defaults" type="button">
+          <svg viewBox="0 0 16 16" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" width="14" height="14" aria-hidden="true">
+            <path d="M2.5 8a5.5 5.5 0 1 0 1.6-3.9L2 6M2 2v4h4"/>
+          </svg>
+          <span>Restore defaults</span>
+        </button>
       </div>
 
       <p id="message" class="status" role="status" aria-live="polite"></p>

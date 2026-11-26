@@ -8,7 +8,7 @@ import {
   normalizeSettings,
   removeExcludedHost,
 } from '../src/shared/settings';
-import { isExtensionRequest } from '../src/shared/messages';
+import { isDetectionBadgeMessage, isExtensionRequest } from '../src/shared/messages';
 
 describe('NativeScroll settings', () => {
   it('recovers defaults from missing or malformed storage', () => {
@@ -57,6 +57,40 @@ describe('NativeScroll settings', () => {
     expect(isExtensionRequest({ type: 'native-scroll:get-state' })).toBe(true);
     expect(isExtensionRequest({ type: 'native-scroll:ping', settings: {} })).toBe(false);
     expect(isExtensionRequest({ type: 'native-scroll:write-settings' })).toBe(false);
+
+    // Detection badge validation
+    expect(
+      isDetectionBadgeMessage({
+        type: 'native-scroll:detection-badge',
+        detected: true,
+        summary: 'Lenis',
+      }),
+    ).toBe(true);
+    expect(
+      isDetectionBadgeMessage({
+        type: 'native-scroll:detection-badge',
+        detected: true,
+        summary: 'Lenis',
+        count: 1,
+      }),
+    ).toBe(true);
+    expect(
+      isDetectionBadgeMessage({
+        type: 'native-scroll:detection-badge',
+        detected: true,
+        summary: 'Lenis',
+        count: -1,
+      }),
+    ).toBe(false);
+    expect(
+      isDetectionBadgeMessage({
+        type: 'native-scroll:detection-badge',
+        detected: true,
+        summary: 'Lenis',
+        count: 1,
+        extra: 'bad',
+      }),
+    ).toBe(false);
   });
 
   it('adds, deduplicates, removes, and clears excluded hosts cleanly', () => {

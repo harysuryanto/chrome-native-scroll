@@ -12,18 +12,33 @@ export interface DetectionBadgeMessage {
   type: typeof DETECTION_BADGE_MESSAGE;
   detected: boolean;
   summary: string;
+  count?: number;
 }
 
 export function isDetectionBadgeMessage(value: unknown): value is DetectionBadgeMessage {
   if (typeof value !== 'object' || value === null || Array.isArray(value)) return false;
   const obj = value as Record<string, unknown>;
-  return (
-    Object.keys(obj).length === 3 &&
-    obj.type === DETECTION_BADGE_MESSAGE &&
-    typeof obj.detected === 'boolean' &&
-    typeof obj.summary === 'string' &&
-    obj.summary.length <= 120
-  );
+  const keys = Object.keys(obj);
+  if (keys.length === 3) {
+    return (
+      obj.type === DETECTION_BADGE_MESSAGE &&
+      typeof obj.detected === 'boolean' &&
+      typeof obj.summary === 'string' &&
+      obj.summary.length <= 120
+    );
+  }
+  if (keys.length === 4) {
+    return (
+      obj.type === DETECTION_BADGE_MESSAGE &&
+      typeof obj.detected === 'boolean' &&
+      typeof obj.summary === 'string' &&
+      obj.summary.length <= 120 &&
+      typeof obj.count === 'number' &&
+      Number.isInteger(obj.count) &&
+      obj.count >= 0
+    );
+  }
+  return false;
 }
 
 export function isExtensionRequest(value: unknown): value is ExtensionRequest {

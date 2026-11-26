@@ -94,7 +94,7 @@ function requestMainWorldDiagnostics(): MainWorldDiagnostics | null {
   return captured;
 }
 
-function summarizeCustomPhysics(diag: MainWorldDiagnostics | null): string | null {
+function summarizeCustomPhysics(diag: MainWorldDiagnostics | null): { count: number; summary: string } | null {
   if (!diag) return null;
   const parts: string[] = [];
   for (const adapter of diag.adapters) {
@@ -108,24 +108,36 @@ function summarizeCustomPhysics(diag: MainWorldDiagnostics | null): string | nul
   if (diag.neutralizedApiCalls > 0) {
     parts.push('smooth scroll API');
   }
-  return parts.length > 0 ? parts.join(', ').slice(0, 120) : null;
+  return parts.length > 0
+    ? { count: parts.length, summary: parts.join(', ').slice(0, 120) }
+    : null;
 }
 
 function reportDetectionBadge(): void {
   const diag = requestMainWorldDiagnostics();
-  const summary = summarizeCustomPhysics(diag);
+  const result = summarizeCustomPhysics(diag);
   void chrome.runtime
     .sendMessage({
       type: DETECTION_BADGE_MESSAGE,
-      detected: summary !== null,
-      summary: summary ?? '',
+      detected: result !== null,
+      summary: result?.summary ?? '',
+      count: result?.count ?? 0,
     })
     .catch(() => {});
 }
 
-window.addEventListener('load', () => {
+function scheduleDetectionReports(): void {
   reportDetectionBadge();
-}, { once: true });
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', () => reportDetectionBadge(), { once: true });
+  }
+  window.addEventListener('load', () => reportDetectionBadge(), { once: true });
+  setTimeout(reportDetectionBadge, 250);
+  setTimeout(reportDetectionBadge, 800);
+  setTimeout(reportDetectionBadge, 2000);
+}
+
+scheduleDetectionReports();
 
 chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !isExtensionRequest(message)) return;
