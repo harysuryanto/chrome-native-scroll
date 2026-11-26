@@ -4,7 +4,7 @@ import {
   type NativeScrollSettings,
 } from '../shared/settings';
 import { loadSettings, observeSettings } from '../shared/storage';
-import { isExtensionRequest, PING_MESSAGE } from '../shared/messages';
+import { DETECTION_BADGE_MESSAGE, isExtensionRequest, PING_MESSAGE } from '../shared/messages';
 import {
   CONFIG_EVENT,
   DIAGNOSTICS_REPORT_EVENT,
@@ -91,6 +91,39 @@ function requestMainWorldDiagnostics(): MainWorldDiagnostics | null {
   document.removeEventListener(DIAGNOSTICS_REPORT_EVENT, listener);
   return captured;
 }
+
+function summarizeCustomPhysics(diag: MainWorldDiagnostics | null): string | null {
+  if (!diag) return null;
+  const parts: string[] = [];
+  for (const adapter of diag.adapters) {
+    if (adapter.outcome !== 'not_detected') {
+      parts.push(adapter.name);
+    }
+  }
+  if (diag.nonPassiveRootWheelListeners > 0) {
+    parts.push('wheel hijacker');
+  }
+  if (diag.neutralizedApiCalls > 0) {
+    parts.push('smooth scroll API');
+  }
+  return parts.length > 0 ? parts.join(', ').slice(0, 120) : null;
+}
+
+function reportDetectionBadge(): void {
+  const diag = requestMainWorldDiagnostics();
+  const summary = summarizeCustomPhysics(diag);
+  void chrome.runtime
+    .sendMessage({
+      type: DETECTION_BADGE_MESSAGE,
+      detected: summary !== null,
+      summary: summary ?? '',
+    })
+    .catch(() => {});
+}
+
+window.addEventListener('load', () => {
+  reportDetectionBadge();
+}, { once: true });
 
 chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !isExtensionRequest(message)) return;
