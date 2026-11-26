@@ -11,7 +11,16 @@
       <div class="brand-mark" aria-hidden="true">↕</div>
       <h1 id="title">NativeScroll settings</h1>
       <p class="tagline">Back to native scrolling.</p>
-      <p class="notice">Configuration controls will be implemented in Issue #2 and Issue #6.</p>
+      <p class="notice">These preferences are persisted. Scrolling changes will be added in later issues.</p>
+      <label class="setting"><span>Enable NativeScroll</span><input id="enabled" type="checkbox" disabled /></label>
+      <fieldset>
+        <legend>Feature preferences (not active yet)</legend>
+        <label class="setting"><span>CSS smooth-scroll override</span><input id="css" type="checkbox" disabled /></label>
+        <label class="setting"><span>Smooth-scroll API override</span><input id="apis" type="checkbox" disabled /></label>
+        <label class="setting"><span>Wheel optimization (experimental)</span><input id="wheel" type="checkbox" disabled /></label>
+        <label class="setting"><span>Library adapters</span><input id="libraries" type="checkbox" disabled /></label>
+      </fieldset>
+      <p id="message" class="status" role="status"></p>
     </main>
     <script type="module" src="./main.ts"></script>
   </body>

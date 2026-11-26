@@ -1,4 +1,11 @@
-// Event-driven Manifest V3 service worker; no timers or persistent loops.
+import { SETTINGS_KEY, normalizeSettings } from '../shared/settings';
+
 chrome.runtime.onInstalled.addListener(() => {
-  console.info('NativeScroll installed. Scrolling behavior is unchanged in this scaffold.');
+  void chrome.storage.local.get(SETTINGS_KEY).then(async (stored) => {
+    await chrome.storage.local.set({
+      [SETTINGS_KEY]: normalizeSettings(stored[SETTINGS_KEY]),
+    });
+  }).catch((error: unknown) => {
+    console.error('NativeScroll settings initialization failed:', error);
+  });
 });

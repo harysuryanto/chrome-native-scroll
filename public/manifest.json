@@ -3,6 +3,10 @@
   "name": "NativeScroll",
   "version": "0.1.0",
   "description": "Back to native scrolling. Remove artificial website scrolling physics.",
+  "permissions": [
+    "storage",
+    "activeTab"
+  ],
   "action": {
     "default_title": "NativeScroll",
     "default_popup": "popup/index.html"
