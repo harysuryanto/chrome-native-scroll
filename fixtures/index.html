@@ -1,0 +1,28 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>NativeScroll Test Fixtures</title>
+    <style>
+      body { font-family: system-ui, sans-serif; max-width: 720px; margin: 32px auto; padding: 0 16px; line-height: 1.5; }
+      ul { line-height: 2; }
+      code { background: #f3f4f6; padding: 2px 6px; border-radius: 4px; }
+    </style>
+  </head>
+  <body>
+    <h1>NativeScroll Deterministic Test Fixtures</h1>
+    <p>
+      Local, offline fixtures for automated unit/E2E verification and manual QA. Note: synthetic
+      <code>WheelEvent</code> and Playwright mouse-wheel tests verify browser event routing and API
+      semantics, <strong>not</strong> physical trackpad or OS momentum physics.
+    </p>
+    <ul>
+      <li><a href="./native-scroll.html">Native scroll baseline</a> — unmodified tall document</li>
+      <li><a href="./css-smooth.html">CSS smooth scrolling</a> — root, body, and nested <code>scroll-behavior: smooth</code></li>
+      <li><a href="./js-smooth-api.html">JS smooth-scroll APIs</a> — <code>window</code> and <code>Element</code> scroll overloads</li>
+      <li><a href="./nested-scroll.html">Nested scroll containers</a> — independent inner vertical/horizontal panes</li>
+      <li><a href="./horizontal-scroll.html">Horizontal scroll strip</a> — horizontal overflow container</li>
+    </ul>
+  </body>
+</html>

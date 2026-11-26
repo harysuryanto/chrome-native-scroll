@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — JS Smooth Scroll APIs</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      .controls { position: fixed; top: 12px; left: 12px; display: flex; gap: 8px; flex-wrap: wrap; background: #fff; padding: 8px; border: 1px solid #cbd5e1; z-index: 10; }
+      .tall { height: 4200px; padding: 80px 24px 24px; }
+      #box { width: 320px; height: 180px; overflow: auto; border: 1px solid #475569; margin-top: 24px; }
+      #box-inner { height: 1500px; padding: 12px; }
+      #into-view-target { margin-top: 1800px; padding: 16px; background: #e0f2fe; }
+    </style>
+  </head>
+  <body>
+    <div class="controls">
+      <button id="btn-win-scrollto-smooth" type="button">window.scrollTo smooth</button>
+      <button id="btn-win-scrollby-smooth" type="button">window.scrollBy smooth</button>
+      <button id="btn-win-scrollto-numeric" type="button">window.scrollTo(0, 900)</button>
+      <button id="btn-el-scrollto-smooth" type="button">el.scrollTo smooth</button>
+      <button id="btn-el-intoview-smooth" type="button">el.scrollIntoView smooth</button>
+    </div>
+    <main class="tall">
+      <h1>JS Smooth Scroll APIs Fixture</h1>
+      <div id="box"><div id="box-inner">Scrollable element content</div></div>
+      <div id="into-view-target">ScrollIntoView Target</div>
+    </main>
+    <script>
+      window.__lastOptionsBehavior = null;
+      document.getElementById('btn-win-scrollto-smooth').addEventListener('click', () => {
+        const opts = { top: 1200, behavior: 'smooth' };
+        window.scrollTo(opts);
+        window.__lastOptionsBehavior = opts.behavior;
+      });
+      document.getElementById('btn-win-scrollby-smooth').addEventListener('click', () => {
+        window.scrollBy({ top: 500, behavior: 'smooth' });
+      });
+      document.getElementById('btn-win-scrollto-numeric').addEventListener('click', () => {
+        window.scrollTo(0, 900);
+      });
+      document.getElementById('btn-el-scrollto-smooth').addEventListener('click', () => {
+        document.getElementById('box').scrollTo({ top: 600, behavior: 'smooth' });
+      });
+      document.getElementById('btn-el-intoview-smooth').addEventListener('click', () => {
+        document.getElementById('into-view-target').scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    </script>
+  </body>
+</html>

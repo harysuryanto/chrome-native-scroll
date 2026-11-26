@@ -1,0 +1,19 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — Nested Scroll Containers</title>
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      .outer { height: 3200px; padding: 24px; }
+      #inner-vertical { width: 380px; height: 220px; overflow-y: auto; border: 2px solid #0f172a; padding: 12px; }
+      .inner-tall { height: 1400px; background: linear-gradient(#ecfeff, #a5f3fc); }
+    </style>
+  </head>
+  <body>
+    <main class="outer">
+      <h1>Nested Scroll Fixture</h1>
+      <div id="inner-vertical"><div class="inner-tall">Inner vertical scroll area</div></div>
+    </main>
+  </body>
+</html>

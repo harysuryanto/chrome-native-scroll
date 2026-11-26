@@ -1,0 +1,51 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — CSS Smooth Scrolling</title>
+    <style>
+      html,
+      body {
+        margin: 0;
+        scroll-behavior: smooth;
+        font-family: system-ui, sans-serif;
+        color: rgb(17, 24, 39);
+      }
+      nav {
+        position: fixed;
+        top: 12px;
+        right: 12px;
+        background: rgb(255, 255, 255);
+        padding: 8px 12px;
+        border: 1px solid #cbd5e1;
+      }
+      .section {
+        height: 1800px;
+        padding: 24px;
+      }
+      #nested-smooth {
+        width: 360px;
+        height: 180px;
+        overflow-y: auto;
+        scroll-behavior: smooth;
+        border: 2px solid rgb(37, 99, 235);
+        padding: 12px;
+      }
+      .nested-inner {
+        height: 1200px;
+      }
+    </style>
+  </head>
+  <body>
+    <nav><a id="jump-target" href="#target-section">Jump to Target</a></nav>
+    <section class="section" id="top-section">
+      <h1>CSS Smooth Scrolling Fixture</h1>
+      <div id="nested-smooth">
+        <div class="nested-inner">Nested smooth-scroll container</div>
+      </div>
+    </section>
+    <section class="section" id="target-section">
+      <h2>Target Section</h2>
+    </section>
+  </body>
+</html>
