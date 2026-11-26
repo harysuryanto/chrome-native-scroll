@@ -3,6 +3,7 @@ export interface WheelOptimizerStatus {
   readonly nonPassiveRootListeners: number;
   readonly guardedListeners: number;
   readonly skippedHijackEvents: number;
+  readonly unhandledPreventedEvents: number;
   readonly avgOverheadMs: number;
 }
 
@@ -81,6 +82,8 @@ function isRootTarget(target: unknown): boolean {
 export interface WheelOptimizerController {
   installObserver(): void;
   setStrict(enabled: boolean): void;
+  setOnUnhandledPrevented(callback: (() => void) | null): void;
+  resetUnhandledPrevented(): void;
   getStatus(): WheelOptimizerStatus;
   uninstall(): void;
 }
@@ -97,8 +100,10 @@ export function createWheelOptimizer(
   let nonPassiveRootListeners = 0;
   let guardedListeners = 0;
   let skippedHijackEvents = 0;
+  let unhandledPreventedEvents = 0;
   let totalOverheadMs = 0;
   let measuredEvents = 0;
+  let onUnhandledPrevented: (() => void) | null = null;
 
   const originalAdd = eventTargetProto.addEventListener;
   const originalRemove = eventTargetProto.removeEventListener;
@@ -134,6 +139,10 @@ export function createWheelOptimizer(
         guarded = function (this: unknown, event: Event): void {
           if (!strictActive) {
             invokeOriginalListener(listener, this, event);
+            if (event.defaultPrevented && !shouldPreserveWheelEvent(event as WheelEvent)) {
+              unhandledPreventedEvents += 1;
+              onUnhandledPrevented?.();
+            }
             return;
           }
           const t0 = typeof performance !== 'undefined' ? performance.now() : 0;
@@ -186,12 +195,21 @@ export function createWheelOptimizer(
       strictActive = enabled;
     },
 
+    setOnUnhandledPrevented(callback: (() => void) | null): void {
+      onUnhandledPrevented = callback;
+    },
+
+    resetUnhandledPrevented(): void {
+      unhandledPreventedEvents = 0;
+    },
+
     getStatus(): WheelOptimizerStatus {
       return {
         strictActive,
         nonPassiveRootListeners,
         guardedListeners,
         skippedHijackEvents,
+        unhandledPreventedEvents,
         avgOverheadMs: measuredEvents > 0 ? totalOverheadMs / measuredEvents : 0,
       };
     },

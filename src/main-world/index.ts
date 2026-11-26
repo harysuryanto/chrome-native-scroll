@@ -29,6 +29,12 @@ let lastConfig: MainWorldConfig | null = null;
 let resolvedAutoMode: ResolvedAutoMode | null = null;
 
 wheelOptimizer.installObserver();
+wheelOptimizer.setOnUnhandledPrevented(() => {
+  if (lastConfig?.active && lastConfig.mode === 'auto') {
+    resolvedAutoMode = 'strict';
+    wheelOptimizer.setStrict(true);
+  }
+});
 adapterManager.attachLifecycleListeners();
 
 /**
@@ -49,6 +55,15 @@ function resolveAndApplyAuto(config: MainWorldConfig): void {
   adapterManager.setEnabled(true);
   const reports = adapterManager.getReports();
   const adapterHandled = reports.some((r) => r.status === 'active');
+  const wheelStatus = wheelOptimizer.getStatus();
+
+  // If a plain vertical wheel event was STILL defaultPrevented despite Compatibility,
+  // escalate to Strict so hijacked scrolling is actually neutralized.
+  if (wheelStatus.unhandledPreventedEvents > 0) {
+    resolvedAutoMode = 'strict';
+    wheelOptimizer.setStrict(true);
+    return;
+  }
 
   if (adapterHandled) {
     resolvedAutoMode = 'compatibility';
@@ -57,7 +72,6 @@ function resolveAndApplyAuto(config: MainWorldConfig): void {
   }
 
   // No verified adapter handled the page; escalate to Strict ONLY if a root wheel hijacker exists.
-  const wheelStatus = wheelOptimizer.getStatus();
   if (wheelStatus.nonPassiveRootListeners > 0) {
     resolvedAutoMode = 'strict';
     wheelOptimizer.setStrict(true);
