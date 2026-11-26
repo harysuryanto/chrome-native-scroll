@@ -5,7 +5,17 @@ import {
 } from '../shared/settings';
 import { loadSettings, observeSettings } from '../shared/storage';
 import { isExtensionRequest, PING_MESSAGE } from '../shared/messages';
-import { CONFIG_EVENT, MAIN_READY_EVENT, type MainWorldConfig } from '../shared/bridge';
+import {
+  CONFIG_EVENT,
+  DIAGNOSTICS_REPORT_EVENT,
+  DIAGNOSTICS_REQUEST_EVENT,
+  MAIN_READY_EVENT,
+  type MainWorldConfig,
+} from '../shared/bridge';
+import {
+  sanitizeMainWorldDiagnostics,
+  type MainWorldDiagnostics,
+} from '../shared/diagnostics';
 import { createCssOverrideController } from './css-override';
 
 let currentSettings: NativeScrollSettings | null = null;
@@ -69,6 +79,19 @@ void loadSettings()
     console.warn('NativeScroll settings could not be loaded:', error);
   });
 
+function requestMainWorldDiagnostics(): MainWorldDiagnostics | null {
+  let captured: MainWorldDiagnostics | null = null;
+  const listener = (event: Event) => {
+    if (event instanceof CustomEvent) {
+      captured = sanitizeMainWorldDiagnostics(event.detail);
+    }
+  };
+  document.addEventListener(DIAGNOSTICS_REPORT_EVENT, listener, { once: true });
+  document.dispatchEvent(new Event(DIAGNOSTICS_REQUEST_EVENT));
+  document.removeEventListener(DIAGNOSTICS_REPORT_EVENT, listener);
+  return captured;
+}
+
 chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) => {
   if (sender.id !== chrome.runtime.id || !isExtensionRequest(message)) return;
   if (message.type === PING_MESSAGE) {
@@ -80,6 +103,7 @@ chrome.runtime.onMessage.addListener((message: unknown, sender, sendResponse) =>
     active: isHostActive(),
     cssOverrideActive: cssOverride.isActive(),
     smoothScrollApisActive: Boolean(isHostActive() && currentSettings?.features.smoothScrollApis),
+    diagnostics: requestMainWorldDiagnostics(),
     hostname,
   });
 });

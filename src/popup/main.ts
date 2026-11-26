@@ -1,4 +1,5 @@
 import '../ui/styles.css';
+import type { MainWorldDiagnostics } from '../shared/diagnostics';
 import { STATE_MESSAGE } from '../shared/messages';
 import {
   getEffectiveMode,
@@ -14,6 +15,8 @@ const enabled = document.querySelector<HTMLInputElement>('#enabled');
 const siteEnabled = document.querySelector<HTMLInputElement>('#site-enabled');
 const siteModeSelect = document.querySelector<HTMLSelectElement>('#site-mode');
 const strictWarning = document.querySelector<HTMLElement>('#strict-warning');
+const diagnosticsPanel = document.querySelector<HTMLDetailsElement>('#diagnostics-panel');
+const diagnosticsList = document.querySelector<HTMLUListElement>('#diagnostics-list');
 const site = document.querySelector<HTMLElement>('#current-site');
 const siteDetail = document.querySelector<HTMLElement>('#site-detail');
 const siteBadge = document.querySelector<HTMLElement>('#site-badge');
@@ -21,12 +24,18 @@ const message = document.querySelector<HTMLElement>('#message');
 const versionEl = document.querySelector<HTMLElement>('#version');
 
 let settings: NativeScrollSettings | null = null;
+let activeTabId: number | null = null;
 let tabSupport: TabSupportResult = {
   supported: false,
   hostname: null,
   reason: 'Checking current site…',
 };
-let tabState: { ready: boolean; active: boolean; cssOverrideActive?: boolean } | null = null;
+let tabState: {
+  ready: boolean;
+  active: boolean;
+  cssOverrideActive?: boolean;
+  diagnostics?: MainWorldDiagnostics | null;
+} | null = null;
 let tabResponded = false;
 let saving = false;
 
@@ -39,6 +48,43 @@ function setBadge(label: string, state: 'active' | 'muted' | 'warn' | 'neutral')
   if (!siteBadge) return;
   siteBadge.textContent = label;
   siteBadge.dataset.state = state;
+}
+
+function renderDiagnostics(): void {
+  if (!diagnosticsPanel || !diagnosticsList) return;
+  if (!tabSupport.supported || !tabResponded || !tabState) {
+    diagnosticsPanel.hidden = true;
+    diagnosticsList.textContent = '';
+    return;
+  }
+
+  diagnosticsPanel.hidden = false;
+  diagnosticsList.textContent = '';
+
+  const addItem = (label: string, value: string) => {
+    const li = document.createElement('li');
+    li.textContent = `${label}: ${value}`;
+    diagnosticsList.appendChild(li);
+  };
+
+  addItem('CSS override', tabState.cssOverrideActive ? 'successfully_neutralized' : 'not_tested');
+  const diag = tabState.diagnostics;
+  if (!diag) {
+    addItem('MAIN-world diagnostics', 'not_tested');
+    return;
+  }
+
+  addItem(
+    'Smooth-scroll APIs',
+    `${diag.apiPatchState} (${diag.neutralizedApiCalls} smooth calls neutralized)`,
+  );
+  addItem(
+    'Root non-passive wheel listeners',
+    `${diag.nonPassiveRootWheelListeners} (${diag.strictWheelActive ? 'strict guard active' : 'observing only'})`,
+  );
+  for (const adapter of diag.adapters) {
+    addItem(adapter.name, `${adapter.outcome}${adapter.detail ? ` — ${adapter.detail}` : ''}`);
+  }
 }
 
 function render(): void {
@@ -58,6 +104,7 @@ function render(): void {
     }
     if (strictWarning) strictWarning.hidden = true;
     setBadge('Unsupported', 'muted');
+    renderDiagnostics();
     return;
   }
 
@@ -98,11 +145,16 @@ function render(): void {
     setBadge('Active', 'active');
     if (siteDetail) siteDetail.textContent = 'Enabled for this host.';
   }
+  renderDiagnostics();
 }
 
 const unsubscribe = observeSettings((next) => {
   settings = next;
-  render();
+  if (activeTabId !== null && tabSupport.supported) {
+    void queryTabState(activeTabId).then(() => render());
+  } else {
+    render();
+  }
 });
 window.addEventListener('pagehide', unsubscribe, { once: true });
 
@@ -160,6 +212,7 @@ async function queryTabState(tabId: number): Promise<void> {
       ready?: boolean;
       active?: boolean;
       cssOverrideActive?: boolean;
+      diagnostics?: MainWorldDiagnostics | null;
     } | null;
     if (response && typeof response === 'object') {
       tabResponded = true;
@@ -167,6 +220,7 @@ async function queryTabState(tabId: number): Promise<void> {
         ready: Boolean(response.ready),
         active: Boolean(response.active),
         cssOverrideActive: Boolean(response.cssOverrideActive),
+        diagnostics: response.diagnostics ?? null,
       };
     }
   } catch {
@@ -181,6 +235,7 @@ void Promise.all([loadSettings(), chrome.tabs.query({ active: true, currentWindo
     const activeTab = tabs[0];
     tabSupport = classifyTabUrl(activeTab?.url);
     if (tabSupport.supported && typeof activeTab?.id === 'number') {
+      activeTabId = activeTab.id;
       await queryTabState(activeTab.id);
     }
     render();
