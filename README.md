@@ -2,90 +2,67 @@
 
 **Back to native scrolling.**
 
-NativeScroll is a lightweight Chrome extension intended to neutralize artificial smooth-scroll physics imposed by websites and restore browser-native scrolling.
+NativeScroll is a lightweight Chrome Manifest V3 extension that neutralizes artificial website smooth-scrolling physics and restores browser-native scrolling.
 
-> **Status:** Foundation only (Issue #1). This scaffold does **not** change how websites scroll yet. CSS overrides, JavaScript API interception, and controls will be implemented in [subsequent issues](https://github.com/harysuryanto/chrome-native-scroll/issues).
+## Scope & Non-Goals
 
-## Tech stack
+- **What NativeScroll does:** Removes CSS `scroll-behavior: smooth`, rewrites explicit smooth JavaScript scroll API calls (`window.scrollTo/scrollBy`, `Element.scrollTo/scrollBy/scrollIntoView`) to immediate native scrolling, optionally neutralizes supported scrolling libraries (`Lenis`, `GSAP ScrollSmoother`, `Locomotive Scroll v5`), and provides an opt-in experimental wheel guard for root scroll hijackers.
+- **What NativeScroll is NOT:** It is **not** a scroll-speed accelerator, does **not** inject custom inertia/easing, and does **not** claim universal mouse-wheel vs. trackpad hardware detection.
 
-- Chrome Manifest V3
-- Vanilla TypeScript, HTML and CSS (no UI framework)
-- Vite 8 for HTML/assets and independent classic-script IIFE bundles
-- Bun for package management and scripts
-- ESLint, Prettier and strict TypeScript
+## Operating Modes
 
-## Prerequisites
+| Mode | Behavior | Recommended For |
+|---|---|---|
+| **Native (Default)** | CSS `scroll-behavior: auto !important` + explicit smooth JS scroll API normalization only | Everyday browsing; preserves all nested scroll, horizontal gestures, maps, carousels, and editors |
+| **Compatibility** | `Native` + verified library adapters (`Lenis 1.x`, `GSAP ScrollSmoother 3.x`, `Locomotive Scroll 5.x`) | Sites using third-party smooth-scroll engines |
+| **Strict (Experimental)** | `Compatibility` + conservative root non-passive wheel listener guard (preserves `Ctrl+wheel`, horizontal deltas, nested scrollables, canvas/maps/editors) | Aggressive custom wheel hijackers; can be disabled immediately per site |
 
-- [Bun](https://bun.sh/docs/installation)
-- Google Chrome or another Chromium browser supporting Manifest V3
+## Quick Start (Bun)
 
-## Install and build
+Prerequisites: [Bun](https://bun.sh/docs/installation) and Google Chrome (or Chromium MV3 browser).
 
 ```sh
 bun install
 bun run typecheck
 bun run lint
+bun run test
 bun run build
+bun run test:e2e
 ```
 
-The output is written to `dist/`. The build packages popup and options HTML and independently bundles the background, isolated content script and MAIN-world script as **classic IIFEs**. This avoids ES module imports in manifest-declared content scripts.
-
-## Download a remotely built extension
-
-You do not need Bun, Node.js or a local build environment to install a CI build.
-
-1. Open the [NativeScroll GitHub Actions runs](https://github.com/harysuryanto/chrome-native-scroll/actions/workflows/verify.yml).
-2. Open a successful run for your desired commit or pull request.
-3. Under **Artifacts**, download `nativescroll-chrome-extension` (GitHub sign-in may be required).
-4. Extract the downloaded ZIP to a new folder. The extracted folder should contain `manifest.json` at its root.
-5. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select that extracted folder.
-
-Artifacts are retained for **14 days**. GitHub Actions uses a hosted Ubuntu runner; no build command runs on your Mac.
-
-## Load in Chrome
-
-1. Run `bun run build`.
-2. Visit `chrome://extensions` in Chrome.
-3. Enable **Developer mode**.
-4. Select **Load unpacked** and choose the repository's `dist/` directory.
-5. Open the NativeScroll popup and click **Open settings** to verify both UI entry points.
-6. In the extension's service-worker console, verify the installation message. Website scrolling remains unchanged at this stage.
-
-## Development
+Additional developer scripts:
 
 ```sh
-bun run dev           # Vite UI-only dev server; does not reload extension content scripts
-bun run build         # Rebuild extension into dist/
-bun run typecheck
-bun run lint
-bun run format:check
+bun run fixtures      # Serve local deterministic fixtures at http://127.0.0.1:4173/
+bun run benchmark     # Run reproducible Chromium scroll-latency benchmarks
+bun run profile       # Run CDP memory, CPU, startup & multi-tab profiler
 ```
 
-After rebuilding, click **Reload** on the extension in `chrome://extensions` to refresh injected scripts. The Vite dev server is only for popup/options iteration; use the built extension to test Manifest V3 contexts.
+## Load Unpacked in Chrome
 
-## Architecture
+1. Run `bun run build` (outputs to `dist/`).
+2. Open `chrome://extensions` and enable **Developer mode**.
+3. Click **Load unpacked** and select the `dist/` directory.
 
-```text
-public/manifest.json                  Manifest V3 source
-src/popup/                            Popup HTML and TypeScript
-src/options/                          Settings HTML and TypeScript
-src/ui/                               Shared plain CSS
-src/content/content-script.ts         Isolated-world content entry
-src/main-world/index.ts               MAIN-world page entry (no privileged APIs)
-src/background/service-worker.ts      Event-driven background entry
-scripts/build.mjs                     Multi-stage Vite production builder
-```
+You can also download prebuilt `nativescroll-chrome-extension` artifacts from [GitHub Actions](https://github.com/harysuryanto/chrome-native-scroll/actions/workflows/verify.yml).
 
-Both content entry points are currently minimal. The MAIN-world entry only supports a public diagnostic ping event and has no access to privileged extension APIs. The isolated entry supports a lightweight ping response to verify injection.
+## Opt-Out, Exclusions & Troubleshooting
 
-## Security and performance
+- **Exclude a website:** Click the NativeScroll toolbar icon and toggle **Enable on this site** off, or manage exact-host exclusions in **Settings**.
+- **Already-open tabs:** Changes to exclusions and modes apply live to open tabs. Reload a tab only if it was opened before NativeScroll was installed.
+- **Diagnostics:** Expand **Site diagnostics** in the popup to inspect real runtime state (`successfully_neutralized`, `not_detected`, `unsupported`, `failed`).
+- **Known limitations:** Browser internal pages (`chrome://`, `about:`, Chrome Web Store) cannot be modified by extensions; legacy Locomotive Scroll v4 transform containers degrade safely to `unsupported`; synthetic `WheelEvent` tests do not emulate physical trackpad feel.
 
-- No React, UI framework, runtime framework, remote scripts or telemetry.
-- No extra browser permissions or host permissions; manifest content scripts are declared for `<all_urls>` because the eventual scrolling behavior is page-specific.
-- Scripts are loaded at `document_start` in their explicit worlds.
-- No animation loops, timers, DOM scanning or periodic background work.
-- No scroll modifications are applied until follow-up issues implement them.
+## Privacy & Permissions
 
-## Roadmap
+NativeScroll requests only `storage` (local preferences in `chrome.storage.local`) and `activeTab` (reading the active tab URL when you open the popup). Zero telemetry, zero external network requests, zero UI frameworks. See [docs/security/audit.md](docs/security/audit.md).
 
-See the [NativeScroll issue tracker](https://github.com/harysuryanto/chrome-native-scroll/issues). This PR addresses [Issue #1](https://github.com/harysuryanto/chrome-native-scroll/issues/1) only.
+## Documentation
+
+- [Architecture Guide](docs/architecture.md)
+- [Compatibility Matrix](docs/compatibility-matrix.md)
+- [Wheel-Event Latency Research](docs/research/wheel-event-latency.md)
+- [Benchmark Methodology & Results](docs/benchmarks/methodology.md)
+- [Memory & CPU Performance Profile](docs/benchmarks/performance-profile.md)
+- [Security & Privacy Audit](docs/security/audit.md)
+- [Manual Hardware QA Checklist](docs/testing/manual-hardware-checklist.md)
