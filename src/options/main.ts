@@ -23,12 +23,14 @@ function render(): void {
     global.checked = settings.enabled;
     global.disabled = saving;
   }
-  const css = control(selectors.cssSmoothScrolling);
-  if (css) {
-    css.checked = settings.features.cssSmoothScrolling;
-    css.disabled = saving;
+  for (const feature of ['cssSmoothScrolling', 'smoothScrollApis'] as const) {
+    const element = control(selectors[feature]);
+    if (element) {
+      element.checked = settings.features[feature];
+      element.disabled = saving;
+    }
   }
-  for (const feature of ['smoothScrollApis', 'wheelOptimization', 'libraryAdapters'] as const) {
+  for (const feature of ['wheelOptimization', 'libraryAdapters'] as const) {
     const element = control(selectors[feature]);
     if (element) element.checked = settings.features[feature];
     // Remaining feature toggles stay disabled until their implementations ship.
@@ -76,6 +78,16 @@ control(selectors.cssSmoothScrolling)?.addEventListener('change', () => {
   updateSettings((current) => ({
     ...current,
     features: { ...current.features, cssSmoothScrolling: checked },
+  }));
+});
+
+control(selectors.smoothScrollApis)?.addEventListener('change', () => {
+  const element = control(selectors.smoothScrollApis);
+  if (!element) return;
+  const checked = element.checked;
+  updateSettings((current) => ({
+    ...current,
+    features: { ...current.features, smoothScrollApis: checked },
   }));
 });
 
