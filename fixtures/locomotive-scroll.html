@@ -1,0 +1,34 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>Fixture — Locomotive Scroll v5</title>
+    <link rel="stylesheet" href="/vendor/locomotive-scroll/dist/locomotive-scroll.css" />
+    <style>
+      body { margin: 0; font-family: system-ui, sans-serif; }
+      .section { height: 1800px; padding: 24px; background: linear-gradient(#fefce8, #fde68a); }
+    </style>
+  </head>
+  <body>
+    <main>
+      <section class="section" data-scroll>
+        <h1>Locomotive Scroll v5 Real-Library Fixture</h1>
+      </section>
+      <section class="section" data-scroll>
+        <h2>Section 2</h2>
+      </section>
+    </main>
+    <script type="importmap">
+      {
+        "imports": {
+          "lenis": "/vendor/lenis/dist/lenis.mjs"
+        }
+      }
+    </script>
+    <script type="module">
+      import LocomotiveScroll from '/vendor/locomotive-scroll/dist/locomotive-scroll.mjs';
+      const locomotiveScroll = new LocomotiveScroll();
+      void locomotiveScroll;
+    </script>
+  </body>
+</html>
