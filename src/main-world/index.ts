@@ -8,6 +8,7 @@ import {
 } from '../shared/bridge';
 import { createGsapScrollSmootherAdapter } from './adapters/gsap-scrollsmoother';
 import { createLenisAdapter } from './adapters/lenis';
+import { createLocomotiveScrollAdapter } from './adapters/locomotive-scroll';
 import { createAdapterManager } from './adapters/registry';
 import { createScrollApiPatchController } from './scroll-api-patch';
 import { createWheelOptimizer } from './wheel-optimizer';
@@ -18,6 +19,7 @@ const wheelOptimizer = createWheelOptimizer();
 const adapterManager = createAdapterManager([
   createLenisAdapter(),
   createGsapScrollSmootherAdapter(),
+  createLocomotiveScrollAdapter(),
 ]);
 
 wheelOptimizer.installObserver();
