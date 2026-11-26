@@ -8,8 +8,8 @@ test.describe('Operating modes E2E (Native, Compatibility, Strict)', () => {
       const optionsPage = await harness.context.newPage();
       await optionsPage.goto(`chrome-extension://${harness.extensionId}/options/index.html`);
 
-      // Default mode is Native; Strict warning is hidden.
-      await expect(optionsPage.locator('#default-mode')).toHaveValue('native');
+      // Default mode is Auto; Strict warning is hidden.
+      await expect(optionsPage.locator('#default-mode')).toHaveValue('auto');
       await expect(optionsPage.locator('#strict-warning')).toBeHidden();
 
       // Switch to Strict -> warning appears immediately.
@@ -28,14 +28,17 @@ test.describe('Operating modes E2E (Native, Compatibility, Strict)', () => {
         )
         .toBe(true);
 
-      // Restore defaults -> returns to Native and removes Lenis opt-out attribute.
-      await optionsPage.click('#restore-defaults');
-      await expect(optionsPage.locator('#default-mode')).toHaveValue('native');
+      // Switch to Native -> removes Lenis opt-out attribute.
+      await optionsPage.selectOption('#default-mode', 'native');
       await expect
         .poll(() =>
           lenisPage.evaluate(() => document.documentElement.hasAttribute('data-lenis-prevent-wheel')),
         )
         .toBe(false);
+
+      // Restore defaults -> returns to Auto.
+      await optionsPage.click('#restore-defaults');
+      await expect(optionsPage.locator('#default-mode')).toHaveValue('auto');
     } finally {
       await harness.close();
     }

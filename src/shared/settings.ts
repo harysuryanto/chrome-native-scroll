@@ -22,7 +22,7 @@ export interface NativeScrollSettings {
 export const DEFAULT_SETTINGS: Readonly<NativeScrollSettings> = Object.freeze({
   schemaVersion: SETTINGS_VERSION,
   enabled: true,
-  defaultMode: 'native',
+  defaultMode: 'auto',
   features: Object.freeze({
     cssSmoothScrolling: true,
     smoothScrollApis: true,
