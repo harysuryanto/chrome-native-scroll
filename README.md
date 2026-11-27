@@ -17,6 +17,28 @@ NativeScroll is a lightweight Chrome Manifest V3 extension that neutralizes arti
 | **Compatibility** | `Native` + verified library adapters (`Lenis 1.x`, `GSAP ScrollSmoother 3.x`, `Locomotive Scroll 5.x`) | Sites using third-party smooth-scroll engines |
 | **Strict (Experimental)** | `Compatibility` + conservative root non-passive wheel listener guard (preserves `Ctrl+wheel`, horizontal deltas, nested scrollables, canvas/maps/editors) | Aggressive custom wheel hijackers; can be disabled immediately per site |
 
+## Screenshots
+
+Engineered to look and feel indistinguishable from Google Chrome native UI, adhering to Chromium WebUI tokens (`cr_elements`, `cr_shared_vars`) and Material Design 3 guidelines across light and dark themes.
+
+### Toolbar Popup & Card-Based Site Modes
+
+| Light Theme | Dark Theme |
+|:---:|:---:|
+| <img src="docs/screenshots/popup-active-light.png" alt="NativeScroll Popup Light Mode" width="340"/> | <img src="docs/screenshots/popup-active-dark.png" alt="NativeScroll Popup Dark Mode" width="340"/> |
+
+### Site Diagnostics & Strict Wheel Guard
+
+| Diagnostics Expanded (Light) | Strict Mode Alert & Traces (Dark) |
+|:---:|:---:|
+| <img src="docs/screenshots/popup-strict-diag-light.png" alt="NativeScroll Diagnostics Light" width="340"/> | <img src="docs/screenshots/popup-strict-diag-dark.png" alt="NativeScroll Diagnostics Dark" width="340"/> |
+
+### Settings & Exclusions Surface
+
+| Settings (Light) | Settings (Dark) |
+|:---:|:---:|
+| <img src="docs/screenshots/options-light.png" alt="NativeScroll Options Light" width="400"/> | <img src="docs/screenshots/options-dark.png" alt="NativeScroll Options Dark" width="400"/> |
+
 ## Quick Start (Bun)
 
 Prerequisites: [Bun](https://bun.sh/docs/installation) and Google Chrome (or Chromium MV3 browser).
