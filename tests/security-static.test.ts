@@ -31,22 +31,29 @@ describe('Manifest V3 security & privacy static audit', () => {
     expect(manifest.externally_connectable).toBeUndefined();
   });
 
-  it('contains no eval, new Function, innerHTML, document.write, or network calls in src/', () => {
+  it('contains no eval, new Function, innerHTML, document.write, or unauthorized network calls in src/', () => {
     const files = collectSourceFiles(resolve(root, 'src'));
-    const forbidden = [
+    const updateCheckPath = resolve(root, 'src/shared/update-check.ts');
+    const alwaysForbidden = [
       /\beval\s*\(/,
       /\bnew\s+Function\s*\(/,
       /\.innerHTML\s*=/,
       /\.outerHTML\s*=/,
       /\bdocument\.write\s*\(/,
-      /\bfetch\s*\(/,
       /\bXMLHttpRequest\b/,
       /\bnavigator\.sendBeacon\b/,
     ];
     for (const file of files) {
       const content = readFileSync(file, 'utf8');
-      for (const pattern of forbidden) {
+      for (const pattern of alwaysForbidden) {
         expect(pattern.test(content), `Forbidden pattern ${pattern} found in ${file}`).toBe(false);
+      }
+      if (file === updateCheckPath) {
+        expect(content).toContain(
+          'https://api.github.com/repos/harysuryanto/chrome-native-scroll/releases',
+        );
+      } else {
+        expect(/\bfetch\s*\(/.test(content), `Unexpected fetch() found in ${file}`).toBe(false);
       }
     }
   });

@@ -9,6 +9,7 @@ import {
   type SiteMode,
 } from '../shared/settings';
 import { loadSettings, observeSettings, saveSettings } from '../shared/storage';
+import { checkForGitHubUpdate, normalizeVersion } from '../shared/update-check';
 import { classifyTabUrl, type TabSupportResult } from '../shared/url';
 
 const enabled = document.querySelector<HTMLInputElement>('#enabled');
@@ -26,6 +27,7 @@ const physicsIndicator = document.querySelector<HTMLElement>('#physics-indicator
 const siteBadge = document.querySelector<HTMLElement>('#site-badge');
 const message = document.querySelector<HTMLElement>('#message');
 const versionEl = document.querySelector<HTMLElement>('#version');
+const checkUpdatesBtn = document.querySelector<HTMLButtonElement>('#check-updates');
 
 let settings: NativeScrollSettings | null = null;
 let activeTabId: number | null = null;
@@ -43,10 +45,51 @@ let tabState: {
 let tabResponded = false;
 let saving = false;
 
+const manifest = chrome.runtime.getManifest?.();
+const currentVersion = normalizeVersion(manifest?.version_name ?? manifest?.version ?? '0.1.0');
 if (versionEl) {
-  const version = chrome.runtime.getManifest?.().version ?? '0.1.0';
-  versionEl.textContent = `v${version}`;
+  versionEl.textContent = `v${currentVersion}`;
 }
+
+let checkingUpdates = false;
+let availableReleaseUrl: string | null = null;
+
+checkUpdatesBtn?.addEventListener('click', () => {
+  if (availableReleaseUrl) {
+    if (chrome.tabs?.create) {
+      void chrome.tabs.create({ url: availableReleaseUrl });
+    } else {
+      window.open(availableReleaseUrl, '_blank', 'noopener,noreferrer');
+    }
+    return;
+  }
+  if (checkingUpdates) return;
+
+  checkingUpdates = true;
+  checkUpdatesBtn.disabled = true;
+  checkUpdatesBtn.dataset.state = 'checking';
+  checkUpdatesBtn.textContent = 'Checking…';
+
+  void checkForGitHubUpdate(currentVersion)
+    .then((result) => {
+      if (result.status === 'update_available') {
+        availableReleaseUrl = result.releaseUrl;
+        checkUpdatesBtn.dataset.state = 'available';
+        checkUpdatesBtn.textContent = `Update to v${result.latestVersion}`;
+      } else {
+        checkUpdatesBtn.dataset.state = 'up-to-date';
+        checkUpdatesBtn.textContent = 'Up to date';
+      }
+    })
+    .catch(() => {
+      checkUpdatesBtn.dataset.state = 'error';
+      checkUpdatesBtn.textContent = 'Check failed';
+    })
+    .finally(() => {
+      checkingUpdates = false;
+      checkUpdatesBtn.disabled = false;
+    });
+});
 
 function setBadge(label: string, state: 'active' | 'muted' | 'warn' | 'neutral'): void {
   if (!siteBadge) return;

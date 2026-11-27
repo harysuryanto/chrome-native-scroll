@@ -86,7 +86,7 @@ NativeScroll requests only two minimal permissions:
 - **`storage`** — Saves your preferences and site exclusions locally in `chrome.storage.local`.
 - **`activeTab`** — Reads the active tab URL only when you open the popup.
 
-Zero telemetry, zero analytics, zero external network requests. See the full [Security & Privacy Audit](docs/security/audit.md).
+Zero telemetry, zero analytics, zero background network requests (an optional manual **Check updates** link in the popup queries GitHub Releases only when clicked). See the full [Security & Privacy Audit](docs/security/audit.md).
 
 ## Development
 
