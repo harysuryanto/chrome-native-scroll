@@ -13,7 +13,7 @@ const buildProc = Bun.spawnSync(['bun', 'scripts/build.mjs'], { stdout: 'inherit
 if (buildProc.exitCode !== 0) throw new Error('Build failed');
 
 const manifest = await Bun.file(join(distDir, 'manifest.json')).json();
-const version = manifest.version;
+const version = manifest.version_name || manifest.version;
 
 // 2. Audit dist/ for forbidden dev-only or sourcemap artifacts
 function walk(dir) {

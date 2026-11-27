@@ -1,0 +1,65 @@
+name: Site Compatibility / Broken Scroll
+description: Report a website where smooth scrolling was not neutralized or native scrolling broke.
+title: "[Site]: "
+labels: ["site-compatibility"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for testing the NativeScroll beta! Please share the site details and diagnostics from the popup so we can reproduce the issue.
+  - type: input
+    id: url
+    attributes:
+      label: Website URL
+      placeholder: https://example.com
+    validations:
+      required: true
+  - type: dropdown
+    id: mode
+    attributes:
+      label: Operating Mode
+      description: Which mode was active on this site?
+      options:
+        - Auto (Default)
+        - Native
+        - Compatibility
+        - Strict (Experimental)
+    validations:
+      required: true
+  - type: dropdown
+    id: diagnostics
+    attributes:
+      label: Popup Site Diagnostics Status
+      description: Expand "Site diagnostics" in the NativeScroll popup to check the reported status.
+      options:
+        - successfully_neutralized
+        - not_detected
+        - unsupported
+        - failed
+        - Not sure
+    validations:
+      required: true
+  - type: dropdown
+    id: input_device
+    attributes:
+      label: Input Device
+      options:
+        - Mouse wheel
+        - Trackpad
+        - Both
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS & Chrome Version
+      placeholder: macOS 15 / Chrome 131
+    validations:
+      required: true
+  - type: textarea
+    id: behavior
+    attributes:
+      label: What happened?
+      description: Describe what you expected vs. what happened (e.g., still smooth-scrolling, nested container stuck, zoom/horizontal scroll affected).
+    validations:
+      required: true

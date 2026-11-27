@@ -1,0 +1,42 @@
+name: Bug Report
+description: Report a bug in the extension UI, settings, or behavior.
+title: "[Bug]: "
+labels: ["bug"]
+body:
+  - type: input
+    id: version
+    attributes:
+      label: NativeScroll Version
+      placeholder: 0.1.0-beta.1
+    validations:
+      required: true
+  - type: input
+    id: environment
+    attributes:
+      label: OS & Chrome Version
+      placeholder: macOS 15 / Chrome 131
+    validations:
+      required: true
+  - type: textarea
+    id: steps
+    attributes:
+      label: Steps to Reproduce
+      placeholder: |
+        1. Open...
+        2. Click...
+        3. Observe...
+    validations:
+      required: true
+  - type: textarea
+    id: expected_actual
+    attributes:
+      label: Expected vs. Actual Behavior
+    validations:
+      required: true
+  - type: textarea
+    id: logs
+    attributes:
+      label: Console Errors / Diagnostics (Optional)
+      description: Any errors from the extension service worker, popup, or page DevTools console.
+    validations:
+      required: false
