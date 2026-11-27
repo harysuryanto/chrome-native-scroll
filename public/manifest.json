@@ -2,6 +2,7 @@
   "manifest_version": 3,
   "name": "NativeScroll",
   "version": "0.1.0",
+  "version_name": "0.1.0-beta.1",
   "description": "Back to native scrolling. Remove artificial website scrolling physics.",
   "permissions": [
     "storage",

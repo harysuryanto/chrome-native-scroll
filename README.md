@@ -13,7 +13,8 @@ NativeScroll is a lightweight Chrome Manifest V3 extension that neutralizes arti
 
 | Mode | Behavior | Recommended For |
 |---|---|---|
-| **Native (Default)** | CSS `scroll-behavior: auto !important` + explicit smooth JS scroll API normalization only | Everyday browsing; preserves all nested scroll, horizontal gestures, maps, carousels, and editors |
+| **Auto (Default)** | Least-risk adaptive mode: starts at `Native`, escalates to `Compatibility` if a supported library is detected, or `Strict` if custom wheel hijacking is detected | Everyday browsing; minimal intervention on standard sites with automatic escalation when needed |
+| **Native** | CSS `scroll-behavior: auto !important` + explicit smooth JS scroll API normalization only | Sites where you want minimal override and guaranteed preservation of nested scroll, maps, carousels, and editors |
 | **Compatibility** | `Native` + verified library adapters (`Lenis 1.x`, `GSAP ScrollSmoother 3.x`, `Locomotive Scroll 5.x`) | Sites using third-party smooth-scroll engines |
 | **Strict (Experimental)** | `Compatibility` + conservative root non-passive wheel listener guard (preserves `Ctrl+wheel`, horizontal deltas, nested scrollables, canvas/maps/editors) | Aggressive custom wheel hijackers; can be disabled immediately per site |
 
@@ -60,13 +61,23 @@ bun run benchmark     # Run reproducible Chromium scroll-latency benchmarks
 bun run profile       # Run CDP memory, CPU, startup & multi-tab profiler
 ```
 
-## Load Unpacked in Chrome
+## Install (Beta)
+
+### From GitHub Releases (Recommended)
+
+1. Download the latest `nativescroll-v*.zip` from [GitHub Releases](https://github.com/harysuryanto/chrome-native-scroll/releases).
+2. Unzip it to a permanent folder on your computer.
+3. Open `chrome://extensions` in Chrome and enable **Developer mode** (top right).
+4. Click **Load unpacked** and select the extracted folder.
+
+> **Note:** Unpacked beta installs do not auto-update. To update to a newer beta, replace the folder contents with the new release ZIP and click the reload icon on the extension card in `chrome://extensions`.
+
+### From Source
 
 1. Run `bun run build` (outputs to `dist/`).
-2. Open `chrome://extensions` and enable **Developer mode**.
-3. Click **Load unpacked** and select the `dist/` directory.
+2. Open `chrome://extensions`, enable **Developer mode**, click **Load unpacked**, and select the `dist/` directory.
 
-You can also download prebuilt `nativescroll-chrome-extension` artifacts from [GitHub Actions](https://github.com/harysuryanto/chrome-native-scroll/actions/workflows/verify.yml).
+For bleeding-edge `main` builds, you can also download `nativescroll-chrome-extension` artifacts from [GitHub Actions](https://github.com/harysuryanto/chrome-native-scroll/actions/workflows/verify.yml).
 
 ## Opt-Out, Exclusions & Troubleshooting
 
