@@ -8,22 +8,13 @@
   </head>
   <body>
     <main class="panel popup" aria-labelledby="title">
-      <!-- Brand & Header -->
+      <!-- Chrome Extension Header -->
       <header class="header">
         <div class="brand-mark" aria-hidden="true">
-          <svg viewBox="0 0 38 38" fill="none" xmlns="http://www.w3.org/2000/svg">
-            <rect width="38" height="38" rx="10" fill="url(#brand-bg)" stroke="rgba(56, 189, 248, 0.4)" stroke-width="1.2"/>
-            <path d="M11 14 L19 6 L27 14" stroke="#38bdf8" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <rect x="16.5" y="16.5" width="5" height="5" rx="2.5" fill="#38bdf8"/>
-            <line x1="12" y1="19" x2="14" y2="19" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
-            <line x1="24" y1="19" x2="26" y2="19" stroke="#38bdf8" stroke-width="1.6" stroke-linecap="round"/>
-            <path d="M11 24 L19 32 L27 24" stroke="#2563eb" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round"/>
-            <defs>
-              <linearGradient id="brand-bg" x1="0" y1="0" x2="0" y2="38" gradientUnits="userSpaceOnUse">
-                <stop offset="0%" stop-color="#0e1726"/>
-                <stop offset="100%" stop-color="#020617"/>
-              </linearGradient>
-            </defs>
+          <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <path d="M6 7.5L12 2.5L18 7.5" stroke="var(--color-sys-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
+            <line x1="8" y1="12" x2="16" y2="12" stroke="var(--color-sys-primary)" stroke-width="2" stroke-linecap="round"/>
+            <path d="M6 16.5L12 21.5L18 16.5" stroke="var(--color-sys-primary)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
           </svg>
         </div>
         <div class="brand-copy">
@@ -32,12 +23,12 @@
         </div>
       </header>
 
-      <!-- Global Master Switch -->
+      <!-- Global Master Switch (Chrome Settings Row) -->
       <section class="card" aria-label="Global controls">
         <label class="setting" for="enabled">
           <div class="setting-content">
             <span class="setting-title">Enable NativeScroll</span>
-            <span class="setting-desc">Global zero-latency kinetic engine</span>
+            <span class="setting-desc">Active scroll normalization across all sites</span>
           </div>
           <div class="switch">
             <input id="enabled" type="checkbox" role="switch" disabled />
@@ -69,7 +60,7 @@
         <label class="setting" for="site-enabled">
           <div class="setting-content">
             <span class="setting-title">Enable on this site</span>
-            <span class="setting-desc">Apply native scroll normalization to host</span>
+            <span class="setting-desc">Normalize scroll behavior on this host</span>
           </div>
           <div class="switch">
             <input id="site-enabled" type="checkbox" role="switch" disabled />
@@ -77,7 +68,7 @@
           </div>
         </label>
 
-        <!-- Card-based Site Mode Selection -->
+        <!-- Card-based Site Mode Selection (Chrome Native Style) -->
         <div class="mode-section">
           <span class="site-label">Site mode</span>
           <div id="site-mode-cards" class="mode-cards" role="radiogroup" aria-label="Site mode">
@@ -201,7 +192,7 @@
             <circle cx="8" cy="8" r="2.5"/>
             <path d="M13.5 8a5.5 5.5 0 0 0-.1-1l1.4-1.1-1.3-2.3-1.7.6a5.6 5.6 0 0 0-1.7-1L9.8 1.5H7.2L7 3.2a5.6 5.6 0 0 0-1.7 1L3.6 3.6 2.3 5.9l1.4 1.1a5.5 5.5 0 0 0 0 2L2.3 10.1l1.3 2.3 1.7-.6a5.6 5.6 0 0 0 1.7 1l.2 1.7h2.6l.3-1.7a5.6 5.6 0 0 0 1.7-1l1.7.6 1.3-2.3-1.4-1.1c.1-.3.1-.7.1-1z"/>
           </svg>
-          <span>Open settings</span>
+          <span>Settings</span>
         </button>
         <p id="version" class="version">v0.1.0</p>
       </footer>

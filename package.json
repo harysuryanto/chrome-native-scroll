@@ -6,6 +6,7 @@
   "description": "Back to native scrolling.",
   "scripts": {
     "dev": "vite --config vite.config.ts",
+    "dev:chrome": "bun scripts/run-dev-chrome.mjs",
     "build": "bun scripts/build.mjs",
     "typecheck": "tsc --noEmit",
     "lint": "eslint .",
